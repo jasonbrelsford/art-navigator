@@ -74,66 +74,59 @@
     return scored;
   }
 
-  // Pick 3 connections: 1 artwork + 2 strongest non-artwork connections (shown as concept nodes)
+  // Pick all meaningful connections for the radial flow
   function pickFlowConnections(artwork) {
     const scored = getConnections(artwork);
     const meta = ART_DB.artworkMeta && ART_DB.artworkMeta[artwork.id];
     const result = [];
 
-    // 1. Best artwork connection
-    if (scored.length > 0) {
-      const best = scored[0];
+    // Top 2-3 artwork connections
+    scored.slice(0, 3).forEach(s => {
       result.push({
         type: 'artwork',
-        id: best.artwork.id,
-        label: best.artwork.title,
-        sublabel: getArtist(best.artwork.artistId)?.name || '',
-        image: best.artwork.image,
-        relation: best.reason,
+        id: s.artwork.id,
+        label: s.artwork.title.length > 22 ? s.artwork.title.slice(0,20) + '…' : s.artwork.title,
+        sublabel: getArtist(s.artwork.artistId)?.name || '',
+        image: s.artwork.image,
+        relation: s.reason,
         color: '#c9a84c',
-        data: best.artwork
+        data: s.artwork
       });
-    }
+    });
 
-    // 2-3. Two strongest concept connections
+    // Concept connections — gather all available
     const concepts = [];
 
-    // Genre
     const genre = ART_DB.genres[artwork.genre];
-    if (genre) concepts.push({ type: 'genre', label: genre.label, relation: 'Genre', color: '#5a8ec7', weight: 3 });
+    if (genre) concepts.push({ type: 'genre', label: genre.label, relation: 'Genre', color: '#5a8ec7' });
 
-    // Technique
-    if (meta?.technique) concepts.push({ type: 'technique', label: meta.technique, relation: 'Technique', color: '#2ecc71', weight: 4 });
+    if (meta?.technique) concepts.push({ type: 'technique', label: meta.technique, relation: 'Technique', color: '#2ecc71' });
 
-    // Theme (pick the most connecting one)
     if (meta?.themes?.length) {
+      // Pick top 2 themes by how many other artworks share them
       const themeCounts = {};
       meta.themes.forEach(t => {
-        let count = 0;
-        ART_DB.artworks.forEach(a => {
-          if (a.id !== artwork.id) {
-            const am = ART_DB.artworkMeta?.[a.id];
-            if (am?.themes?.includes(t)) count++;
-          }
-        });
-        themeCounts[t] = count;
+        themeCounts[t] = ART_DB.artworks.filter(a => a.id !== artwork.id && ART_DB.artworkMeta?.[a.id]?.themes?.includes(t)).length;
       });
-      const bestTheme = meta.themes.sort((a, b) => (themeCounts[b] || 0) - (themeCounts[a] || 0))[0];
-      concepts.push({ type: 'theme', label: bestTheme, relation: 'Theme', color: '#9b59b6', weight: themeCounts[bestTheme] || 0 });
+      const sorted = [...meta.themes].sort((a, b) => (themeCounts[b] || 0) - (themeCounts[a] || 0));
+      sorted.slice(0, 2).forEach(t => {
+        concepts.push({ type: 'theme', label: t, relation: 'Theme', color: '#9b59b6' });
+      });
     }
 
-    // Depicted location
-    if (meta?.depictedLocation) concepts.push({ type: 'depicted', label: meta.depictedLocation, relation: 'Depicts', color: '#e67e22', weight: 2 });
+    if (meta?.depictedLocation) concepts.push({ type: 'depicted', label: meta.depictedLocation, relation: 'Depicts', color: '#e67e22' });
 
-    // Palette
     if (meta?.palette) {
       const palLabels = { warm: 'Warm tones', cool: 'Cool tones', earth: 'Earth tones' };
-      concepts.push({ type: 'palette', label: palLabels[meta.palette] || meta.palette, relation: 'Palette', color: '#e74c8b', weight: 1 });
+      concepts.push({ type: 'palette', label: palLabels[meta.palette] || meta.palette, relation: 'Palette', color: '#e74c8b' });
     }
 
-    // Artist era
     const artist = getArtist(artwork.artistId);
     if (artist) {
+      // Artist node
+      concepts.push({ type: 'artist', label: artist.name, relation: 'Artist', color: '#6e5fa8' });
+
+      // Era
       const birthYear = parseInt(artist.born);
       if (birthYear) {
         let era;
@@ -143,15 +136,22 @@
         else if (birthYear < 1870) era = 'Impressionism';
         else if (birthYear < 1900) era = 'Post-Impressionism';
         else era = 'Modern';
-        concepts.push({ type: 'era', label: era, relation: 'Movement', color: '#8a6e3e', weight: 2 });
+        concepts.push({ type: 'era', label: era, relation: 'Movement', color: '#8a6e3e' });
       }
     }
 
-    // Sort by weight descending, pick top 2
-    concepts.sort((a, b) => b.weight - a.weight);
-    concepts.slice(0, 2).forEach(c => {
-      result.push({ ...c, id: null, image: null, sublabel: '' });
-    });
+    // Museum
+    const museum = getMuseum(artwork.museumId);
+    if (museum) concepts.push({ type: 'museum', label: museum.name.length > 22 ? museum.name.slice(0,20) + '…' : museum.name, relation: 'Museum', color: '#4a9e8e' });
+
+    // Decade
+    const ym = artwork.year.match(/\d{4}/);
+    if (ym) {
+      const decade = Math.floor(parseInt(ym[0]) / 10) * 10;
+      concepts.push({ type: 'decade', label: decade + 's', relation: 'Decade', color: '#5d6d7e' });
+    }
+
+    concepts.forEach(c => result.push({ ...c, id: null, image: null, sublabel: '' }));
 
     return result;
   }
@@ -180,7 +180,6 @@
     const flow = document.getElementById('connection-flow');
     const selected = document.getElementById('flow-selected');
     const conns = document.getElementById('flow-connections');
-    const svgEl = document.getElementById('flow-lines');
 
     flow.classList.remove('hidden');
 
@@ -190,63 +189,71 @@
       <div class="flow-title">${artwork.title}</div>
       <div class="flow-artist">${getArtist(artwork.artistId)?.name || ''}</div>`;
 
-    // Get 3 connections
+    // Get all connections
     const connections = pickFlowConnections(artwork);
     conns.innerHTML = '';
 
-    connections.forEach(conn => {
+    // Place nodes in a circle using CSS
+    const count = connections.length;
+    const radius = Math.min(window.innerWidth * 0.35, 280);
+
+    connections.forEach((conn, i) => {
+      const angle = (i / count) * 2 * Math.PI - Math.PI / 2; // start from top
+      const x = Math.cos(angle) * radius;
+      const y = Math.sin(angle) * radius;
+
       const node = document.createElement('div');
       node.className = 'flow-node';
+      node.style.transform = `translate(${x}px, ${y}px)`;
+      node.style.animationDelay = `${i * 0.06}s`;
 
       if (conn.type === 'artwork' && conn.image) {
         node.innerHTML = `
           <img src="${conn.image}" alt="${conn.label}">
           <div class="flow-node-label">${conn.label}</div>
+          <div class="flow-node-sub">${conn.sublabel}</div>
           <div class="flow-node-relation">${conn.relation}</div>`;
         node.addEventListener('click', () => navigateTo(conn.id));
         node.addEventListener('contextmenu', (e) => { e.preventDefault(); showDetail(conn.id); });
       } else {
         node.innerHTML = `
-          <div class="flow-dot" style="background:${conn.color}">${conn.type.slice(0,3).toUpperCase()}</div>
+          <div class="flow-dot" style="background:${conn.color}">${conn.relation.slice(0,3).toUpperCase()}</div>
           <div class="flow-node-label">${conn.label}</div>
           <div class="flow-node-relation">${conn.relation}</div>`;
-        // Click concept node → show artworks matching that concept
         node.addEventListener('click', () => showConceptArtworks(artwork, conn));
       }
       conns.appendChild(node);
     });
 
-    // Draw SVG lines after layout settles
-    requestAnimationFrame(() => {
-      requestAnimationFrame(() => drawFlowLines());
-    });
+    // Draw SVG lines from center to each node
+    requestAnimationFrame(() => requestAnimationFrame(() => drawRadialLines(connections.length, radius)));
   }
 
-  function drawFlowLines() {
+  function drawRadialLines(count, radius) {
     const svg = document.getElementById('flow-lines');
     const flow = document.getElementById('connection-flow');
-    const selected = document.getElementById('flow-selected');
-    const conns = document.querySelectorAll('.flow-node');
-
     const flowRect = flow.getBoundingClientRect();
-    const selRect = selected.getBoundingClientRect();
-    const sx = selRect.left + selRect.width / 2 - flowRect.left;
-    const sy = selRect.top + selRect.height - flowRect.top;
+    const cx = flowRect.width / 2;
+    const cy = flowRect.height / 2;
 
     svg.setAttribute('viewBox', `0 0 ${flowRect.width} ${flowRect.height}`);
     svg.innerHTML = '';
 
-    conns.forEach(node => {
-      const r = node.getBoundingClientRect();
-      const ex = r.left + r.width / 2 - flowRect.left;
-      const ey = r.top - flowRect.top;
-      const my = sy + (ey - sy) * 0.5;
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * 2 * Math.PI - Math.PI / 2;
+      const ex = cx + Math.cos(angle) * radius;
+      const ey = cy + Math.sin(angle) * radius;
+
+      // Curved bezier from center to node
+      const cpx = cx + Math.cos(angle) * radius * 0.4;
+      const cpy = cy + Math.sin(angle) * radius * 0.4;
 
       const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
-      path.setAttribute('d', `M${sx},${sy} C${sx},${my} ${ex},${my} ${ex},${ey}`);
+      path.setAttribute('d', `M${cx},${cy} Q${cpx},${cpy} ${ex},${ey}`);
       path.setAttribute('class', 'flow-line');
+      path.style.animationDelay = `${i * 0.1}s`;
       svg.appendChild(path);
-    });
+    }
   }
 
   // Show artworks matching a concept (theme, technique, etc.)
