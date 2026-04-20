@@ -222,7 +222,7 @@
       if (d.type === 'artwork' && d.data.image) html += `<img src="${d.data.image}" alt="${d.label}">`;
       html += `<div class="tt-type">${d.type}</div><h3>${d.label}</h3>`;
       if (d.type === 'artwork') {
-        const artist = ART_DB.artists[d.data.artistId];
+        const artist = ART_DB.artists[d.data.artistId] || (nodeMap[d.data.artistId] ? nodeMap[d.data.artistId].data : null);
         html += `<div class="tt-detail">${artist ? artist.name : ''} · ${d.data.year}<br>${d.data.medium}`;
         if (d.data.patron) html += `<br>Patron: ${d.data.patron}`;
         html += `</div>`;
@@ -303,11 +303,12 @@
     html += `<div class="panel-type">${d.type}</div><h2>${d.label}</h2>`;
 
     if (d.type === 'artwork') {
-      const artist = ART_DB.artists[d.data.artistId];
+      const artist = ART_DB.artists[d.data.artistId] || (nodeMap[d.data.artistId] ? nodeMap[d.data.artistId].data : null);
       const museum = ART_DB.museums[d.data.museumId];
+      const artistName = artist ? artist.name : '';
       html += `<div class="panel-section"><h3>Details</h3>
-        <p>${artist ? artist.name : ''} · ${d.data.year}<br>${d.data.medium}<br>Gallery: ${d.data.galleryRoom}</p></div>`;
-      if (d.data.patron) html += `<div class="panel-section"><h3>Patron / Funder</h3><p>${d.data.patron}</p></div>`;
+        <p>${artistName} · ${d.data.year}<br>${d.data.medium}<br>Gallery: ${d.data.galleryRoom}</p></div>`;
+      if (d.data.patron && d.data.patron !== 'Unknown') html += `<div class="panel-section"><h3>Patron / Funder</h3><p>${d.data.patron}</p></div>`;
       html += `<div class="panel-section"><h3>Current Location</h3>
         <p>${museum ? museum.name : ''}<br>${museum ? museum.address : ''}</p></div>`;
       html += `<div class="panel-section"><h3>Provenance</h3><p>${d.data.provenance}</p></div>`;
@@ -479,6 +480,68 @@
     } catch (e) { return qid; }
   }
 
+  // ── Museum API helpers ──
+  async function searchMetMuseum(artistName) {
+    try {
+      const url = `https://collectionapi.metmuseum.org/public/collection/v1/search?q=${encodeURIComponent(artistName)}&hasImages=true`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      if (!data.objectIDs) return [];
+      // Fetch up to 6 objects, check artist match
+      const results = [];
+      for (const oid of data.objectIDs.slice(0, 15)) {
+        if (results.length >= 5) break;
+        try {
+          const objResp = await fetch(`https://collectionapi.metmuseum.org/public/collection/v1/objects/${oid}`);
+          const obj = await objResp.json();
+          const img = obj.primaryImageSmall || '';
+          if (!img) continue;
+          // Verify artist name matches (fuzzy)
+          const objArtist = (obj.artistDisplayName || '').toLowerCase();
+          const searchName = artistName.toLowerCase();
+          const lastNameSearch = searchName.split(' ').pop();
+          if (!objArtist.includes(lastNameSearch)) continue;
+          results.push({
+            title: obj.title,
+            year: obj.objectDate || '',
+            medium: obj.medium || 'Unknown medium',
+            image: img,
+            galleryRoom: obj.GalleryNumber ? `Gallery ${obj.GalleryNumber}` : 'Not on view',
+            museumId: 'met',
+            department: obj.department || ''
+          });
+        } catch (e) { /* skip failed fetches */ }
+      }
+      return results;
+    } catch (e) { return []; }
+  }
+
+  async function searchArtInstituteChicago(artistName) {
+    try {
+      const url = `https://api.artic.edu/api/v1/artworks/search?q=${encodeURIComponent(artistName)}&limit=10&fields=id,title,image_id,artist_title,date_display,medium_display,gallery_title`;
+      const resp = await fetch(url);
+      const data = await resp.json();
+      const results = [];
+      const lastNameSearch = artistName.toLowerCase().split(' ').pop();
+      for (const a of (data.data || [])) {
+        if (results.length >= 5) break;
+        if (!a.image_id) continue;
+        const artArtist = (a.artist_title || '').toLowerCase();
+        if (!artArtist.includes(lastNameSearch)) continue;
+        results.push({
+          title: a.title,
+          year: a.date_display || '',
+          medium: a.medium_display || 'Unknown medium',
+          image: `https://www.artic.edu/iiif/2/${a.image_id}/full/400,/0/default.jpg`,
+          galleryRoom: a.gallery_title || 'Not on view',
+          museumId: 'artic',
+          department: ''
+        });
+      }
+      return results;
+    } catch (e) { return []; }
+  }
+
   async function addArtistFromWikidata(qid) {
     const artistNodeId = 'artist-wiki-' + qid;
     if (nodeMap[artistNodeId]) {
@@ -497,20 +560,17 @@
 
     const name = entity.labels?.en?.value || qid;
     const desc = entity.descriptions?.en?.value || '';
-    const birthYear = getClaimValue(entity, 'P569'); // date of birth
-    const deathYear = getClaimValue(entity, 'P570'); // date of death
-    const birthPlaceQid = getClaimValue(entity, 'P19'); // place of birth
-    const deathPlaceQid = getClaimValue(entity, 'P20'); // place of death
-    const movementQids = (entity.claims['P135'] || []).map(c => c.mainsnak?.datavalue?.value?.id).filter(Boolean); // movement
+    const birthYear = getClaimValue(entity, 'P569');
+    const deathYear = getClaimValue(entity, 'P570');
+    const birthPlaceQid = getClaimValue(entity, 'P19');
+    const deathPlaceQid = getClaimValue(entity, 'P20');
+    const movementQids = (entity.claims['P135'] || []).map(c => c.mainsnak?.datavalue?.value?.id).filter(Boolean);
     const wikiUrl = entity.sitelinks?.enwiki ? `https://en.wikipedia.org/wiki/${entity.sitelinks.enwiki.title.replace(/ /g, '_')}` : null;
 
-    // Resolve place names
     const [birthPlace, deathPlace] = await Promise.all([
       birthPlaceQid ? getEntityLabel(birthPlaceQid) : Promise.resolve(''),
       deathPlaceQid ? getEntityLabel(deathPlaceQid) : Promise.resolve('')
     ]);
-
-    // Resolve movement names
     const movements = await Promise.all(movementQids.slice(0, 3).map(q => getEntityLabel(q)));
 
     const born = birthYear ? `${birthYear}, ${birthPlace}` : birthPlace || 'Unknown';
@@ -520,7 +580,7 @@
     const artistData = { name, born, died, bio: desc, contact: wikiUrl ? `See Wikipedia: ${wikiUrl}` : 'No contact information available', wikiUrl };
     addNode(artistNodeId, 'artist', name, artistData);
 
-    // Birth/death locations
+    // Birth/death locations — reuse existing location nodes
     if (birthPlace) {
       const locId = 'loc-' + birthPlace.toLowerCase().replace(/[^a-z0-9]/g, '-');
       addNode(locId, 'location', birthPlace, { place: birthPlace });
@@ -538,8 +598,6 @@
       addNode(eraId, 'era', m, { era: m });
       addLink(artistNodeId, eraId, 'movement');
     });
-
-    // If no movements found, assign by birth year
     if (movements.length === 0 && birthYear) {
       const y = parseInt(birthYear);
       let era = 'Unknown';
@@ -554,21 +612,65 @@
       addLink(artistNodeId, eraId, 'movement');
     }
 
-    // Connect to existing artists sharing locations or eras
-    // (this creates the cross-connections that make the graph interesting)
+    // ── Search museum APIs for actual artworks ──
+    wikiStatus.textContent = `Searching museums for ${name}'s works...`;
+
+    const [metWorks, articWorks] = await Promise.all([
+      searchMetMuseum(name),
+      searchArtInstituteChicago(name)
+    ]);
+
+    const allWorks = [...metWorks, ...articWorks];
+    let addedCount = 0;
+
+    allWorks.forEach((work, i) => {
+      const artId = `wiki-art-${qid}-${i}`;
+      if (nodeMap[artId]) return;
+
+      const artData = {
+        title: work.title,
+        year: work.year,
+        medium: work.medium,
+        image: work.image,
+        galleryRoom: work.galleryRoom,
+        museumId: work.museumId,
+        artistId: artistNodeId,
+        patron: 'Unknown',
+        provenance: `Found via museum open-access API. Currently at ${work.museumId === 'met' ? 'The Metropolitan Museum of Art' : 'Art Institute of Chicago'}.`
+      };
+
+      addNode(artId, 'artwork', work.title, artData);
+      addLink(artId, artistNodeId, 'created by');
+      addLink(artId, 'museum-' + work.museumId, 'housed at');
+
+      // Connect to sale status
+      addLink(artId, 'sale-museum-collection', 'sale status');
+
+      // Connect to medium
+      const medId = 'medium-' + work.medium.toLowerCase().replace(/[^a-z0-9]/g, '-');
+      addNode(medId, 'medium', work.medium, { medium: work.medium });
+      addLink(artId, medId, 'medium');
+
+      addedCount++;
+    });
 
     // Rebuild the visualization
     rebuildVisualization();
 
-    // Make the new artist visible
+    // Make new content visible
+    activeFilters.add('artwork');
     activeFilters.add('artist');
+    activeFilters.add('museum');
     activeFilters.add('location');
     activeFilters.add('era');
     buildLegend();
     resetHighlight();
 
-    wikiStatus.textContent = `Added ${name} to the graph`;
-    setTimeout(() => wikiStatus.style.display = 'none', 3000);
+    const msg = addedCount > 0
+      ? `Added ${name} + ${addedCount} artworks from museum collections`
+      : `Added ${name} (no open-access artworks found in Met/AIC)`;
+    wikiStatus.textContent = msg;
+    setTimeout(() => wikiStatus.style.display = 'none', 4000);
 
     // Zoom to the new node
     setTimeout(() => {
