@@ -5,25 +5,37 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Ethereal Gallery</title>
   <link rel="stylesheet" href="css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
 </head>
 <body>
   <div id="app">
+    <!-- Gallery browse view -->
     <div id="gallery-view" class="view active">
-      <div class="fog-overlay"></div>
-      <div class="gallery-room">
+      <header class="gallery-header">
         <h1 class="gallery-title">Ethereal Gallery</h1>
-        <p class="gallery-subtitle">Choose a piece to begin your journey</p>
-        <div id="art-wall" class="art-wall"></div>
-        <div id="breadcrumb" class="breadcrumb"></div>
-        <a href="graph.html" class="graph-link">View Connection Graph →</a>
+        <nav class="gallery-nav">
+          <a href="graph.html" class="nav-link">Connection Graph</a>
+        </nav>
+      </header>
+      <p id="gallery-subtitle" class="gallery-subtitle">Choose a piece to begin your journey</p>
+      <div id="art-wall" class="art-wall"></div>
+
+      <!-- Connection flow — appears after clicking a piece -->
+      <div id="connection-flow" class="connection-flow hidden">
+        <div class="flow-center">
+          <div class="flow-selected" id="flow-selected"></div>
+        </div>
+        <svg id="flow-lines" class="flow-lines"></svg>
+        <div class="flow-connections" id="flow-connections"></div>
       </div>
+
+      <div id="breadcrumb" class="breadcrumb"></div>
     </div>
 
+    <!-- Detail view -->
     <div id="detail-view" class="view">
-      <div class="fog-overlay"></div>
       <div class="detail-container">
-        <button id="back-btn" class="back-btn" aria-label="Go back">&larr; Return to Gallery</button>
+        <button id="back-btn" class="back-btn" aria-label="Go back">&larr; Back</button>
         <div class="detail-content">
           <div class="detail-image-wrap">
             <img id="detail-image" src="" alt="" class="detail-image">
