@@ -321,37 +321,91 @@
   // ── Tooltip ──
   const tooltip = d3.select('#tooltip');
 
+  // ── Pinned selection state ──
+  let pinnedNode = null;
+
+  function getConnectedSet(d) {
+    const connected = new Set([d.id]);
+    links.forEach(l => {
+      const sid = typeof l.source === 'object' ? l.source.id : l.source;
+      const tid = typeof l.target === 'object' ? l.target.id : l.target;
+      if (sid === d.id) connected.add(tid);
+      if (tid === d.id) connected.add(sid);
+    });
+    return connected;
+  }
+
+  function applyHighlight(d) {
+    const connected = getConnectedSet(d);
+    node.style('opacity', n => connected.has(n.id) ? 1 : 0.08);
+    link.style('stroke-opacity', l => {
+      const sid = typeof l.source === 'object' ? l.source.id : l.source;
+      const tid = typeof l.target === 'object' ? l.target.id : l.target;
+      return (sid === d.id || tid === d.id) ? 0.7 : 0.02;
+    });
+    // Visual indicator on pinned node
+    node.select('circle').attr('stroke-width', n => n.id === d.id ? 3 : 1.5);
+  }
+
+  function clearPin() {
+    pinnedNode = null;
+    node.select('circle').attr('stroke-width', 1.5);
+    resetHighlight();
+  }
+
+  function buildTooltipHtml(d) {
+    let html = '';
+    if (d.type === 'artwork' && d.data.image) html += `<img src="${d.data.image}" alt="${d.label}">`;
+    html += `<div class="tt-type">${d.type}</div><h3>${d.label}</h3>`;
+    if (d.type === 'artwork') {
+      const artist = ART_DB.artists[d.data.artistId] || (nodeMap[d.data.artistId] ? nodeMap[d.data.artistId].data : null);
+      html += `<div class="tt-detail">${artist ? artist.name : ''} · ${d.data.year}<br>${d.data.medium}`;
+      if (d.data.patron) html += `<br>Patron: ${d.data.patron}`;
+      html += `</div>`;
+    } else if (d.type === 'artist') {
+      html += `<div class="tt-detail">${d.data.born} — ${d.data.died}</div>`;
+    } else if (d.type === 'museum') {
+      html += `<div class="tt-detail">${d.data.city}<br>${d.data.address}</div>`;
+    } else if (d.type === 'patron') {
+      html += `<div class="tt-detail">${d.data.name}</div>`;
+    } else if (d.type === 'location') {
+      html += `<div class="tt-detail">${d.data.place}</div>`;
+    }
+    const connCount = links.filter(l =>
+      (typeof l.source === 'object' ? l.source.id : l.source) === d.id ||
+      (typeof l.target === 'object' ? l.target.id : l.target) === d.id
+    ).length;
+    html += `<div class="tt-detail" style="margin-top:6px">${connCount} connections</div>`;
+    return html;
+  }
+
   function attachNodeEvents(sel) {
     sel.on('mouseover', function (event, d) {
-      let html = '';
-      if (d.type === 'artwork' && d.data.image) html += `<img src="${d.data.image}" alt="${d.label}">`;
-      html += `<div class="tt-type">${d.type}</div><h3>${d.label}</h3>`;
-      if (d.type === 'artwork') {
-        const artist = ART_DB.artists[d.data.artistId] || (nodeMap[d.data.artistId] ? nodeMap[d.data.artistId].data : null);
-        html += `<div class="tt-detail">${artist ? artist.name : ''} · ${d.data.year}<br>${d.data.medium}`;
-        if (d.data.patron) html += `<br>Patron: ${d.data.patron}`;
-        html += `</div>`;
-      } else if (d.type === 'artist') {
-        html += `<div class="tt-detail">${d.data.born} — ${d.data.died}</div>`;
-      } else if (d.type === 'museum') {
-        html += `<div class="tt-detail">${d.data.city}<br>${d.data.address}</div>`;
-      } else if (d.type === 'patron') {
-        html += `<div class="tt-detail">${d.data.name}</div>`;
-      } else if (d.type === 'location') {
-        html += `<div class="tt-detail">${d.data.place}</div>`;
-      }
-      const connCount = links.filter(l =>
-        (typeof l.source === 'object' ? l.source.id : l.source) === d.id ||
-        (typeof l.target === 'object' ? l.target.id : l.target) === d.id
-      ).length;
-      html += `<div class="tt-detail" style="margin-top:6px">${connCount} connections</div>`;
-      tooltip.html(html).style('display', 'block');
+      // Always show tooltip
+      tooltip.html(buildTooltipHtml(d)).style('display', 'block');
       positionTooltip(event);
-      highlightConnections(d);
+      // Only highlight on hover if nothing is pinned
+      if (!pinnedNode) {
+        applyHighlight(d);
+      }
     })
     .on('mousemove', positionTooltip)
-    .on('mouseout', function () { tooltip.style('display', 'none'); resetHighlight(); })
-    .on('click', function (event, d) { event.stopPropagation(); openInfoPanel(d); });
+    .on('mouseout', function () {
+      tooltip.style('display', 'none');
+      // Restore pinned highlight or reset
+      if (pinnedNode) {
+        applyHighlight(pinnedNode);
+      } else {
+        resetHighlight();
+      }
+    })
+    .on('click', function (event, d) {
+      event.stopPropagation();
+      // Pin this node
+      pinnedNode = d;
+      applyHighlight(d);
+      openInfoPanel(d);
+    });
   }
 
   attachNodeEvents(node);
@@ -361,22 +415,6 @@
     if (x + 320 > window.innerWidth) x = event.pageX - 336;
     if (y + 200 > window.innerHeight) y = event.pageY - 200;
     tooltip.style('left', x + 'px').style('top', y + 'px');
-  }
-
-  function highlightConnections(d) {
-    const connected = new Set([d.id]);
-    links.forEach(l => {
-      const sid = typeof l.source === 'object' ? l.source.id : l.source;
-      const tid = typeof l.target === 'object' ? l.target.id : l.target;
-      if (sid === d.id) connected.add(tid);
-      if (tid === d.id) connected.add(sid);
-    });
-    node.style('opacity', n => connected.has(n.id) ? 1 : 0.1);
-    link.style('stroke-opacity', l => {
-      const sid = typeof l.source === 'object' ? l.source.id : l.source;
-      const tid = typeof l.target === 'object' ? l.target.id : l.target;
-      return (sid === d.id || tid === d.id) ? 0.7 : 0.03;
-    });
   }
 
   function resetHighlight() {
@@ -479,13 +517,19 @@
     content.querySelectorAll('.conn-item').forEach(el => {
       el.addEventListener('click', () => {
         const tn = nodes.find(n => n.id === el.dataset.nodeId);
-        if (tn) { openInfoPanel(tn); zoomToNode(tn); }
+        if (tn) {
+          pinnedNode = tn;
+          applyHighlight(tn);
+          openInfoPanel(tn);
+          zoomToNode(tn);
+        }
       });
     });
   }
 
   document.querySelector('#info-panel .close-btn').addEventListener('click', () => {
     document.getElementById('info-panel').classList.remove('open');
+    clearPin();
   });
 
   function zoomToNode(d) {
@@ -976,9 +1020,10 @@
     setTimeout(() => document.addEventListener('click', closeHandler), 100);
   }
 
-  // Click background to close panel
+  // Click background to close panel and clear pin
   svg.on('click', () => {
     document.getElementById('info-panel').classList.remove('open');
+    clearPin();
     const dd = document.getElementById('search-dropdown');
     if (dd) dd.remove();
   });
