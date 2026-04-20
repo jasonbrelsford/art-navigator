@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ethereal Gallery</title>
+  <link rel="stylesheet" href="css/style.css">
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Raleway:wght@200;300;400&display=swap" rel="stylesheet">
+</head>
+<body>
+  <div id="app">
+    <div id="gallery-view" class="view active">
+      <div class="fog-overlay"></div>
+      <div class="gallery-room">
+        <h1 class="gallery-title">Ethereal Gallery</h1>
+        <p class="gallery-subtitle">Choose a piece to begin your journey</p>
+        <div id="art-wall" class="art-wall"></div>
+        <div id="breadcrumb" class="breadcrumb"></div>
+      </div>
+    </div>
+
+    <div id="detail-view" class="view">
+      <div class="fog-overlay"></div>
+      <div class="detail-container">
+        <button id="back-btn" class="back-btn" aria-label="Go back">&larr; Return to Gallery</button>
+        <div class="detail-content">
+          <div class="detail-image-wrap">
+            <img id="detail-image" src="" alt="" class="detail-image">
+          </div>
+          <div class="detail-info">
+            <h2 id="detail-title" class="detail-title"></h2>
+            <p id="detail-artist" class="detail-artist"></p>
+            <p id="detail-year" class="detail-year"></p>
+            <p id="detail-medium" class="detail-medium"></p>
+            <p id="detail-genre" class="detail-genre"></p>
+            <div class="detail-section">
+              <h3>Provenance</h3>
+              <p id="detail-provenance"></p>
+            </div>
+            <div class="detail-section">
+              <h3>Current Location</h3>
+              <p id="detail-museum"></p>
+              <p id="detail-museum-location"></p>
+              <p id="detail-address" class="clickable"></p>
+            </div>
+            <div class="detail-section">
+              <h3>About the Artist</h3>
+              <p id="detail-artist-bio"></p>
+              <p id="detail-artist-contact" class="clickable"></p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/gallery.js"></script>
+</body>
+</html>

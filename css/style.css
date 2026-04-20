@@ -1,0 +1,327 @@
+*, *::before, *::after {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+:root {
+  --bg-deep: #0a0a12;
+  --bg-mid: #12121f;
+  --fog: rgba(180, 180, 220, 0.04);
+  --gold: #c9a84c;
+  --gold-dim: #8a7233;
+  --text-light: #e0dde8;
+  --text-dim: #8a87a0;
+  --accent: #6e5fa8;
+  --frame: #2a2535;
+  --frame-highlight: #3d3650;
+}
+
+html, body {
+  height: 100%;
+  font-family: 'Raleway', sans-serif;
+  background: var(--bg-deep);
+  color: var(--text-light);
+  overflow-x: hidden;
+}
+
+/* Views */
+.view {
+  display: none;
+  min-height: 100vh;
+  position: relative;
+}
+.view.active {
+  display: block;
+}
+
+/* Fog overlay */
+.fog-overlay {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 0;
+  background:
+    radial-gradient(ellipse at 20% 50%, rgba(110, 95, 168, 0.08) 0%, transparent 60%),
+    radial-gradient(ellipse at 80% 30%, rgba(201, 168, 76, 0.05) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(100, 100, 180, 0.06) 0%, transparent 60%);
+  animation: fogDrift 20s ease-in-out infinite alternate;
+}
+
+@keyframes fogDrift {
+  0% { opacity: 0.6; transform: translateX(-10px); }
+  50% { opacity: 1; }
+  100% { opacity: 0.7; transform: translateX(10px); }
+}
+
+/* Gallery Room */
+.gallery-room {
+  position: relative;
+  z-index: 1;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 60px 20px;
+  text-align: center;
+}
+
+.gallery-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 300;
+  font-size: 3rem;
+  letter-spacing: 0.3em;
+  color: var(--gold);
+  text-transform: uppercase;
+  margin-bottom: 8px;
+  animation: fadeIn 1.5s ease;
+}
+
+.gallery-subtitle {
+  font-weight: 200;
+  font-size: 1rem;
+  color: var(--text-dim);
+  letter-spacing: 0.15em;
+  margin-bottom: 50px;
+  animation: fadeIn 2s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(15px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+/* Art Wall */
+.art-wall {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  flex-wrap: wrap;
+  perspective: 800px;
+}
+
+.art-piece {
+  position: relative;
+  cursor: pointer;
+  transition: transform 0.5s ease, box-shadow 0.5s ease;
+  animation: pieceReveal 0.8s ease backwards;
+}
+.art-piece:nth-child(2) { animation-delay: 0.2s; }
+.art-piece:nth-child(3) { animation-delay: 0.4s; }
+.art-piece:nth-child(4) { animation-delay: 0.6s; }
+
+@keyframes pieceReveal {
+  from { opacity: 0; transform: scale(0.9) translateY(20px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+.art-piece:hover {
+  transform: scale(1.04) translateY(-5px);
+  z-index: 2;
+}
+
+.art-frame {
+  background: var(--frame);
+  padding: 12px;
+  border: 1px solid var(--frame-highlight);
+  box-shadow:
+    0 4px 30px rgba(0,0,0,0.5),
+    inset 0 1px 0 rgba(255,255,255,0.05);
+}
+
+.art-piece:hover .art-frame {
+  border-color: var(--gold-dim);
+  box-shadow:
+    0 8px 40px rgba(110, 95, 168, 0.2),
+    0 0 60px rgba(201, 168, 76, 0.08),
+    inset 0 1px 0 rgba(255,255,255,0.08);
+}
+
+.art-frame img {
+  display: block;
+  width: 240px;
+  height: 300px;
+  object-fit: cover;
+}
+
+.art-label {
+  margin-top: 14px;
+  text-align: center;
+}
+
+.art-label-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-size: 1rem;
+  font-weight: 400;
+  color: var(--text-light);
+  margin-bottom: 2px;
+}
+
+.art-label-artist {
+  font-size: 0.75rem;
+  font-weight: 200;
+  color: var(--text-dim);
+  letter-spacing: 0.1em;
+}
+
+.art-label-tag {
+  display: inline-block;
+  margin-top: 6px;
+  font-size: 0.65rem;
+  color: var(--accent);
+  letter-spacing: 0.08em;
+  border: 1px solid rgba(110, 95, 168, 0.3);
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+/* Breadcrumb */
+.breadcrumb {
+  margin-top: 40px;
+  display: flex;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+}
+
+.breadcrumb span {
+  cursor: pointer;
+  transition: color 0.3s;
+}
+.breadcrumb span:hover {
+  color: var(--gold);
+}
+.breadcrumb .sep {
+  cursor: default;
+  color: var(--frame-highlight);
+}
+
+/* Detail View */
+.detail-container {
+  position: relative;
+  z-index: 1;
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 40px 20px;
+  animation: fadeIn 0.6s ease;
+}
+
+.back-btn {
+  background: none;
+  border: 1px solid var(--frame-highlight);
+  color: var(--text-dim);
+  font-family: 'Raleway', sans-serif;
+  font-size: 0.85rem;
+  padding: 8px 18px;
+  cursor: pointer;
+  transition: all 0.3s;
+  margin-bottom: 30px;
+}
+.back-btn:hover {
+  border-color: var(--gold-dim);
+  color: var(--gold);
+}
+
+.detail-content {
+  display: flex;
+  gap: 50px;
+  align-items: flex-start;
+}
+
+.detail-image-wrap {
+  flex-shrink: 0;
+}
+
+.detail-image {
+  width: 420px;
+  max-width: 90vw;
+  border: 1px solid var(--frame-highlight);
+  box-shadow: 0 8px 40px rgba(0,0,0,0.4);
+}
+
+.detail-info {
+  flex: 1;
+}
+
+.detail-title {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 2rem;
+  color: var(--gold);
+  margin-bottom: 6px;
+}
+
+.detail-artist {
+  font-size: 1.1rem;
+  color: var(--text-light);
+  margin-bottom: 4px;
+}
+
+.detail-year, .detail-medium, .detail-genre {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  margin-bottom: 3px;
+}
+
+.detail-section {
+  margin-top: 24px;
+}
+
+.detail-section h3 {
+  font-family: 'Cormorant Garamond', serif;
+  font-weight: 400;
+  font-size: 1.1rem;
+  color: var(--accent);
+  margin-bottom: 6px;
+  letter-spacing: 0.08em;
+}
+
+.detail-section p {
+  font-size: 0.85rem;
+  color: var(--text-dim);
+  line-height: 1.6;
+  margin-bottom: 4px;
+}
+
+.clickable {
+  cursor: pointer;
+  transition: color 0.3s;
+  text-decoration: underline;
+  text-decoration-color: rgba(110, 95, 168, 0.3);
+}
+.clickable:hover {
+  color: var(--gold) !important;
+}
+
+/* Context menu */
+.context-menu {
+  position: fixed;
+  background: var(--bg-mid);
+  border: 1px solid var(--frame-highlight);
+  padding: 6px 0;
+  z-index: 100;
+  min-width: 160px;
+  box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  animation: fadeIn 0.2s ease;
+}
+
+.context-menu-item {
+  padding: 8px 16px;
+  font-size: 0.8rem;
+  color: var(--text-dim);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+.context-menu-item:hover {
+  background: rgba(110, 95, 168, 0.15);
+  color: var(--text-light);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  .art-wall { gap: 30px; }
+  .art-frame img { width: 160px; height: 200px; }
+  .detail-content { flex-direction: column; }
+  .detail-image { width: 100%; }
+  .gallery-title { font-size: 2rem; letter-spacing: 0.15em; }
+}
