@@ -4,20 +4,31 @@
 
   // ── Color palette for node types ──
   const COLORS = {
-    artwork:  '#c9a84c',  // gold
-    artist:   '#6e5fa8',  // purple
-    museum:   '#4a9e8e',  // teal
-    location: '#c75a5a',  // rose
-    genre:    '#5a8ec7',  // blue
-    era:      '#8a6e3e',  // bronze
-    medium:   '#7a7a7a',  // grey
-    patron:   '#d48a2e',  // orange
-    sale:     '#d4a017',  // amber
+    artwork:    '#c9a84c',  // gold
+    artist:     '#6e5fa8',  // purple
+    museum:     '#4a9e8e',  // teal
+    location:   '#c75a5a',  // rose
+    genre:      '#5a8ec7',  // blue
+    era:        '#8a6e3e',  // bronze
+    medium:     '#7a7a7a',  // grey
+    patron:     '#d48a2e',  // orange
+    sale:       '#d4a017',  // amber
+    theme:      '#9b59b6',  // violet
+    technique:  '#2ecc71',  // green
+    palette:    '#e74c8b',  // pink
+    collector:  '#f39c12',  // marigold
+    decade:     '#5d6d7e',  // slate
+    depicted:   '#e67e22',  // tangerine
+    exhibition: '#1abc9c',  // mint
+    influence: '#e84393',  // magenta (link only, not a node type)
+    circle:     '#fd79a8',  // salmon (link only, not a node type)
   };
 
   const NODE_RADIUS = {
     artwork: 18, artist: 22, museum: 16, location: 12,
     genre: 14, era: 10, medium: 10, patron: 14, sale: 10,
+    theme: 10, technique: 11, palette: 9, collector: 12,
+    decade: 9, depicted: 11, exhibition: 13,
   };
 
   // ── Shared mutable graph state ──
@@ -74,6 +85,29 @@
         addNode(eraId, 'era', era, { era });
         addLink('artist-' + id, eraId, 'movement');
       }
+
+      // Influence connections
+      if (a.influencedBy) {
+        a.influencedBy.forEach(otherId => {
+          addLink('artist-' + id, 'artist-' + otherId, 'influenced by');
+        });
+      }
+
+      // Social circle / friendship connections
+      if (a.socialCircle) {
+        a.socialCircle.forEach(otherId => {
+          addLink('artist-' + id, 'artist-' + otherId, 'friend / peer');
+        });
+      }
+
+      // Technique nodes from artist
+      if (a.techniques) {
+        a.techniques.forEach(t => {
+          const techId = 'tech-' + t.toLowerCase().replace(/[^a-z0-9]/g, '-');
+          addNode(techId, 'technique', t, { technique: t });
+          addLink('artist-' + id, techId, 'used technique');
+        });
+      }
     });
 
     // Museums
@@ -109,7 +143,7 @@
 
       // Patron / funder
       if (art.patron && !art.patron.startsWith('Self-funded') && !art.patron.startsWith('Unknown')) {
-        const patronName = art.patron.split(' (')[0]; // strip parenthetical
+        const patronName = art.patron.split(' (')[0];
         const patronId = 'patron-' + patronName.toLowerCase().replace(/[^a-z0-9]/g, '-');
         addNode(patronId, 'patron', art.patron, { name: art.patron });
         addLink(art.id, patronId, 'funded by');
@@ -123,7 +157,71 @@
         addNode(locId, 'location', loc, { place: loc });
         addLink(art.id, locId, 'created at');
       }
+
+      // ── Decade cluster ──
+      const yearMatch = art.year.match(/\d{4}/);
+      if (yearMatch) {
+        const decade = Math.floor(parseInt(yearMatch[0]) / 10) * 10;
+        const decadeId = 'decade-' + decade;
+        addNode(decadeId, 'decade', decade + 's', { decade: decade + 's' });
+        addLink(art.id, decadeId, 'created in');
+      }
+
+      // ── Deep metadata from artworkMeta ──
+      const meta = ART_DB.artworkMeta && ART_DB.artworkMeta[art.id];
+      if (meta) {
+        // Themes
+        if (meta.themes) {
+          meta.themes.forEach(t => {
+            const themeId = 'theme-' + t.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            addNode(themeId, 'theme', t, { theme: t });
+            addLink(art.id, themeId, 'theme');
+          });
+        }
+
+        // Depicted location
+        if (meta.depictedLocation) {
+          const depId = 'depicted-' + meta.depictedLocation.toLowerCase().replace(/[^a-z0-9]/g, '-');
+          addNode(depId, 'depicted', meta.depictedLocation, { place: meta.depictedLocation });
+          addLink(art.id, depId, 'depicts');
+        }
+
+        // Technique
+        if (meta.technique) {
+          const techId = 'tech-' + meta.technique.toLowerCase().replace(/[^a-z0-9]/g, '-');
+          addNode(techId, 'technique', meta.technique, { technique: meta.technique });
+          addLink(art.id, techId, 'technique');
+        }
+
+        // Color palette
+        if (meta.palette) {
+          const palId = 'palette-' + meta.palette;
+          const palLabels = { warm: 'Warm Palette (reds, golds, oranges)', cool: 'Cool Palette (blues, greens, silvers)', earth: 'Earth Tones (browns, ochres, umbers)' };
+          addNode(palId, 'palette', palLabels[meta.palette] || meta.palette, { palette: meta.palette });
+          addLink(art.id, palId, 'color palette');
+        }
+
+        // Collectors
+        if (meta.collectors) {
+          meta.collectors.forEach(c => {
+            const collId = 'collector-' + c.toLowerCase().replace(/[^a-z0-9]/g, '-');
+            addNode(collId, 'collector', c, { name: c });
+            addLink(art.id, collId, 'collected by');
+          });
+        }
+      }
     });
+
+    // ── Exhibition connections ──
+    if (ART_DB.exhibitions) {
+      ART_DB.exhibitions.forEach(ex => {
+        const exId = 'exhibition-' + ex.name.toLowerCase().replace(/[^a-z0-9]/g, '-');
+        addNode(exId, 'exhibition', ex.name, { name: ex.name });
+        ex.artworks.forEach(artId => {
+          if (nodeMap[artId]) addLink(artId, exId, 'exhibited at');
+        });
+      });
+    }
   }
 
   buildGraph();
@@ -167,9 +265,12 @@
     .force('link', d3.forceLink(links).id(d => d.id).distance(d => {
       if (d.relation === 'created by' || d.relation === 'housed at') return 80;
       if (d.relation === 'genre' || d.relation === 'medium' || d.relation === 'funded by') return 100;
+      if (d.relation === 'influenced by' || d.relation === 'friend / peer') return 90;
+      if (d.relation === 'theme' || d.relation === 'technique' || d.relation === 'color palette') return 110;
+      if (d.relation === 'created in' || d.relation === 'depicts') return 100;
       return 120;
-    }).strength(0.4))
-    .force('charge', d3.forceManyBody().strength(-200))
+    }).strength(0.3))
+    .force('charge', d3.forceManyBody().strength(-150))
     .force('center', d3.forceCenter(width / 2, height / 2))
     .force('collision', d3.forceCollide().radius(d => d.radius + 8))
     .force('x', d3.forceX(width / 2).strength(0.03))
@@ -181,11 +282,15 @@
     .attr('class', 'link')
     .attr('stroke', d => {
       const src = typeof d.source === 'object' ? d.source : nodes.find(n => n.id === d.source);
+      if (d.relation === 'influenced by') return '#e84393';
+      if (d.relation === 'friend / peer') return '#fd79a8';
       return COLORS[src ? src.type : 'artwork'] || '#444';
     })
     .attr('stroke-width', d => {
       if (d.relation === 'created by') return 2;
       if (d.relation === 'housed at' || d.relation === 'funded by') return 1.5;
+      if (d.relation === 'influenced by') return 2;
+      if (d.relation === 'friend / peer') return 1.5;
       return 0.8;
     });
 
@@ -334,6 +439,21 @@
       html += `<div class="panel-section"><p>Artistic medium: ${d.data.medium}</p></div>`;
     } else if (d.type === 'sale') {
       html += `<div class="panel-section"><p>${d.data.status}</p></div>`;
+    } else if (d.type === 'theme') {
+      html += `<div class="panel-section"><p>Subject / iconographic theme shared across artworks</p></div>`;
+    } else if (d.type === 'technique') {
+      html += `<div class="panel-section"><p>Artistic technique: ${d.data.technique}</p></div>`;
+    } else if (d.type === 'palette') {
+      html += `<div class="panel-section"><p>Color family grouping artworks by dominant tones</p></div>`;
+    } else if (d.type === 'collector') {
+      html += `<div class="panel-section"><p>Collector who owned or acquired this artwork</p></div>`;
+    } else if (d.type === 'decade') {
+      html += `<div class="panel-section"><p>Artworks created during the ${d.data.decade}</p></div>`;
+    } else if (d.type === 'depicted') {
+      html += `<div class="panel-section"><p>Location depicted in the artwork</p>
+        <p><a href="https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(d.data.place)}" target="_blank" style="color:var(--gold)">Open in Maps →</a></p></div>`;
+    } else if (d.type === 'exhibition') {
+      html += `<div class="panel-section"><p>Historical exhibition where these works were shown together</p></div>`;
     }
 
     // Connections list
@@ -379,6 +499,7 @@
     const legend = document.getElementById('legend');
     let html = '<h2>Node Types</h2>';
     Object.entries(COLORS).forEach(([type, color]) => {
+      if (type === 'influence' || type === 'circle') return; // link types, not node types
       const count = nodes.filter(n => n.type === type).length;
       const active = activeFilters.has(type);
       html += `<div class="legend-item ${active ? '' : 'dimmed'}" data-type="${type}">
@@ -386,6 +507,16 @@
         <span>${type.charAt(0).toUpperCase() + type.slice(1)} (${count})</span>
       </div>`;
     });
+    // Link type legend
+    html += `<div style="margin-top:8px;border-top:1px solid rgba(110,95,168,0.15);padding-top:8px;">
+      <div style="font-size:0.6rem;color:var(--dim);margin-bottom:4px;letter-spacing:0.08em;">LINK TYPES</div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;font-size:0.7rem;color:var(--dim);">
+        <span style="width:20px;height:2px;background:#e84393;display:inline-block;"></span> Influenced by
+      </div>
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:3px;font-size:0.7rem;color:var(--dim);">
+        <span style="width:20px;height:2px;background:#fd79a8;display:inline-block;"></span> Friend / peer
+      </div>
+    </div>`;
     // Show All / Show Artworks Only buttons
     html += `<div style="margin-top:10px;display:flex;gap:6px;">
       <button id="legend-all" style="flex:1;background:none;border:1px solid rgba(110,95,168,0.3);color:var(--dim);font-size:0.65rem;padding:4px 8px;cursor:pointer;">Show All</button>
@@ -690,11 +821,15 @@
       .attr('class', 'link')
       .attr('stroke', d => {
         const src = typeof d.source === 'object' ? d.source : nodes.find(n => n.id === d.source);
+        if (d.relation === 'influenced by') return '#e84393';
+        if (d.relation === 'friend / peer') return '#fd79a8';
         return COLORS[src ? src.type : 'artwork'] || '#444';
       })
       .attr('stroke-width', d => {
         if (d.relation === 'created by') return 2;
         if (d.relation === 'housed at' || d.relation === 'funded by') return 1.5;
+        if (d.relation === 'influenced by') return 2;
+        if (d.relation === 'friend / peer') return 1.5;
         return 0.8;
       });
     link = linkEnter.merge(link);
