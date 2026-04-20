@@ -264,36 +264,63 @@
     ART_DB.artworks.filter(a => a.id !== currentArt.id).forEach(a => {
       const am = meta?.[a.id];
       let match = false;
+
       if (concept.type === 'genre' && ART_DB.genres[a.genre]?.label === concept.label) match = true;
       if (concept.type === 'technique' && am?.technique === concept.label) match = true;
       if (concept.type === 'theme' && am?.themes?.includes(concept.label)) match = true;
       if (concept.type === 'depicted' && am?.depictedLocation === concept.label) match = true;
       if (concept.type === 'palette' && am?.palette && concept.label.toLowerCase().includes(am.palette)) match = true;
-      if (concept.type === 'era') match = true; // show all for era, we'll filter below
+
+      // Museum — match by museum name
+      if (concept.type === 'museum') {
+        const mus = getMuseum(a.museumId);
+        if (mus && concept.label.startsWith(mus.name.slice(0, 18))) match = true;
+      }
+
+      // Artist — match by artist name
+      if (concept.type === 'artist') {
+        const art = getArtist(a.artistId);
+        if (art && art.name === concept.label) match = true;
+      }
+
+      // Decade — match by year
+      if (concept.type === 'decade') {
+        const ym = a.year.match(/\d{4}/);
+        if (ym) {
+          const dec = Math.floor(parseInt(ym[0]) / 10) * 10;
+          if (concept.label === dec + 's') match = true;
+        }
+      }
+
+      // Era — match by artist birth year
+      if (concept.type === 'era') {
+        const artist = getArtist(a.artistId);
+        if (artist) {
+          const by = parseInt(artist.born);
+          let era;
+          if (by < 1600) era = 'Renaissance';
+          else if (by < 1700) era = 'Dutch Golden Age';
+          else if (by < 1800) era = 'Edo Period';
+          else if (by < 1870) era = 'Impressionism';
+          else if (by < 1900) era = 'Post-Impressionism';
+          else era = 'Modern';
+          if (era === concept.label) match = true;
+        }
+      }
+
       if (match) matching.push(a);
     });
 
-    // For era, filter by matching era
-    if (concept.type === 'era') {
-      matching = matching.filter(a => {
-        const artist = getArtist(a.artistId);
-        if (!artist) return false;
-        const by = parseInt(artist.born);
-        let era;
-        if (by < 1600) era = 'Renaissance';
-        else if (by < 1700) era = 'Dutch Golden Age';
-        else if (by < 1800) era = 'Edo Period';
-        else if (by < 1870) era = 'Impressionism';
-        else if (by < 1900) era = 'Post-Impressionism';
-        else era = 'Modern';
-        return era === concept.label;
-      });
+    if (matching.length === 0) {
+      // Nothing matched — stay on current view, just update subtitle
+      document.getElementById('gallery-subtitle').textContent = `No other artworks found for ${concept.relation.toLowerCase()}: "${concept.label}"`;
+      return;
     }
 
-    // Show up to 6 on the wall
+    // Pick up to 6 and show on wall
     const shuffled = [...matching].sort(() => Math.random() - 0.5).slice(0, 6);
     const subtitle = document.getElementById('gallery-subtitle');
-    subtitle.textContent = `Artworks connected by ${concept.relation.toLowerCase()}: "${concept.label}"`;
+    subtitle.textContent = `${matching.length} artwork${matching.length > 1 ? 's' : ''} connected by ${concept.relation.toLowerCase()}: "${concept.label}"`;
     renderWall(shuffled.map(a => ({ ...a, tag: concept.label })));
     document.getElementById('connection-flow').classList.add('hidden');
     window.scrollTo({ top: 0, behavior: 'smooth' });
