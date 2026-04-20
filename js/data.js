@@ -143,6 +143,7 @@ const ART_DB = {
       genre: "genre-painting",
       museumId: "met",
       galleryRoom: "Room 614",
+      patron: "Pieter van Ruijven (likely patron)",
       provenance: "Possibly in the Dissius sale, Amsterdam, 1696. Acquired by Henry Marquand and donated to the Metropolitan Museum of Art in 1889.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP353257.jpg"
     },
@@ -155,6 +156,7 @@ const ART_DB = {
       genre: "portrait",
       museumId: "met",
       galleryRoom: "Room 614",
+      patron: "Pieter van Ruijven (likely patron)",
       provenance: "Collection of Rodolphe Kann, Paris. Acquired by Benjamin Altman and bequeathed to the Metropolitan Museum of Art in 1913.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP353256.jpg"
     },
@@ -167,6 +169,7 @@ const ART_DB = {
       genre: "genre-painting",
       museumId: "met",
       galleryRoom: "Room 614",
+      patron: "Pieter van Ruijven (likely patron)",
       provenance: "Possibly in the Dissius sale, Amsterdam, 1696. Acquired by Collis P. Huntington. Bequeathed to the Metropolitan Museum of Art in 1900.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP354965.jpg"
     },
@@ -180,6 +183,7 @@ const ART_DB = {
       genre: "landscape",
       museumId: "artic",
       galleryRoom: "Gallery 243",
+      patron: "Paul Durand-Ruel (dealer/buyer)",
       provenance: "Painted at Giverny. Sold by Monet to Durand-Ruel gallery in 1909. Passed through several private collections. Acquired by the Art Institute of Chicago in 1933.",
       image: "https://www.artic.edu/iiif/2/3c27b499-af56-f0d5-93b5-a7f2f1ad5813/full/400,/0/default.jpg"
     },
@@ -192,6 +196,7 @@ const ART_DB = {
       genre: "landscape",
       museumId: "artic",
       galleryRoom: "Gallery 243",
+      patron: "Self-funded (painted at Giverny)",
       provenance: "Painted at Giverny. Part of a series depicting the Japanese bridge over Monet's water garden. Acquired by the Art Institute of Chicago.",
       image: "https://www.artic.edu/iiif/2/8534685d-1102-e1e3-e194-94f6e925e8b0/full/400,/0/default.jpg"
     },
@@ -204,6 +209,7 @@ const ART_DB = {
       genre: "landscape",
       museumId: "artic",
       galleryRoom: "Gallery 201",
+      patron: "Self-funded (exhibited at Impressionist show)",
       provenance: "Part of Monet's series of the Gare Saint-Lazare. Exhibited at the third Impressionist exhibition in 1877. Acquired by the Art Institute of Chicago.",
       image: "https://www.artic.edu/iiif/2/0f1cc0e0-e42e-be16-3f71-2022da38cb93/full/400,/0/default.jpg"
     },
@@ -216,6 +222,7 @@ const ART_DB = {
       genre: "landscape",
       museumId: "artic",
       galleryRoom: "Gallery 243",
+      patron: "Paul Durand-Ruel (dealer/buyer)",
       provenance: "Part of Monet's famous Haystacks series. Painted near his home in Giverny. Acquired by the Art Institute of Chicago.",
       image: "https://www.artic.edu/iiif/2/a38e2828-ec6f-ece1-a30f-70243449197b/full/400,/0/default.jpg"
     },
@@ -228,6 +235,7 @@ const ART_DB = {
       genre: "landscape",
       museumId: "artic",
       galleryRoom: "Gallery 201",
+      patron: "Self-funded (early career work)",
       provenance: "Painted during Monet's early career at the Normandy coast. Acquired by the Art Institute of Chicago.",
       image: "https://www.artic.edu/iiif/2/95be2572-b53d-8e7b-abc9-10eb48d4fa5d/full/400,/0/default.jpg"
     },
@@ -241,6 +249,7 @@ const ART_DB = {
       genre: "landscape",
       museumId: "met",
       galleryRoom: "Room 822",
+      patron: "The Annenberg Foundation (acquisition funder)",
       provenance: "Painted at the Saint-Paul-de-Mausole asylum in Saint-Rémy-de-Provence. Acquired by the Metropolitan Museum of Art, Purchase, The Annenberg Foundation Gift, 1993.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg"
     },
@@ -253,6 +262,7 @@ const ART_DB = {
       genre: "portrait",
       museumId: "met",
       galleryRoom: "Room 825",
+      patron: "Self-funded (personal work)",
       provenance: "Painted in Paris. Reverse side contains The Potato Peeler. Part of the Bequest of Miss Adelaide Milton de Groot to the Metropolitan Museum of Art, 1967.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DT1502_cropped2.jpg"
     },
@@ -265,6 +275,7 @@ const ART_DB = {
       genre: "still-life",
       museumId: "met",
       galleryRoom: "Room 822",
+      patron: "Theo van Gogh (brother/supporter)",
       provenance: "Painted at Saint-Rémy-de-Provence. Acquired by the Metropolitan Museum of Art, Gift of Adele R. Levy, 1958.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP346474.jpg"
     },
@@ -277,6 +288,7 @@ const ART_DB = {
       genre: "still-life",
       museumId: "met",
       galleryRoom: "Room 825",
+      patron: "Theo van Gogh (brother/supporter)",
       provenance: "Painted in Paris. Part of a series of still lifes with sunflowers. Acquired by the Metropolitan Museum of Art, Rogers Fund, 1949.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-41223-001.jpg"
     },
@@ -289,6 +301,7 @@ const ART_DB = {
       genre: "landscape",
       museumId: "met",
       galleryRoom: "Room 825",
+      patron: "Theo van Gogh (brother/supporter)",
       provenance: "Painted at Saint-Rémy-de-Provence. Van Gogh considered this among his best summer landscapes. Acquired by the Metropolitan Museum of Art, Rogers Fund, 1949.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP130999.jpg"
     },
@@ -301,6 +314,7 @@ const ART_DB = {
       genre: "still-life",
       museumId: "met",
       galleryRoom: "Room 825",
+      patron: "Theo van Gogh (brother/supporter)",
       provenance: "Painted in Arles. Acquired by the Metropolitan Museum of Art, Gift of Mr. and Mrs. John L. Loeb, 1962.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DT1494.jpg"
     },
@@ -313,6 +327,7 @@ const ART_DB = {
       genre: "interior",
       museumId: "artic",
       galleryRoom: "Gallery 241",
+      patron: "Theo van Gogh (brother/supporter)",
       provenance: "Third version painted at Saint-Rémy. Acquired by the Art Institute of Chicago through the Helen Birch Bartlett Memorial Collection.",
       image: "https://www.artic.edu/iiif/2/6644829f-f292-c5c4-a73c-0356a6fdbf0d/full/400,/0/default.jpg"
     },
@@ -325,6 +340,7 @@ const ART_DB = {
       genre: "portrait",
       museumId: "artic",
       galleryRoom: "Gallery 241",
+      patron: "Theo van Gogh (brother/supporter)",
       provenance: "Painted in Paris during Van Gogh's time with the Impressionists. Acquired by the Art Institute of Chicago, Joseph Winterbotham Collection.",
       image: "https://www.artic.edu/iiif/2/47c5bcb8-62ef-e5d7-55e7-f5121f409a30/full/400,/0/default.jpg"
     },
@@ -337,6 +353,7 @@ const ART_DB = {
       genre: "genre-painting",
       museumId: "met",
       galleryRoom: "Room 825",
+      patron: "Theo van Gogh (brother/supporter)",
       provenance: "Painted at Saint-Rémy after a print by Jean-François Millet. Acquired by the Metropolitan Museum of Art, Gift of George N. and Helen M. Richard, 1964.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP124808.jpg"
     },
@@ -349,6 +366,7 @@ const ART_DB = {
       genre: "landscape",
       museumId: "met",
       galleryRoom: "Room 822",
+      patron: "Theo van Gogh (brother/supporter)",
       provenance: "Painted at Saint-Rémy-de-Provence. Part of a series of olive grove paintings. Acquired by the Metropolitan Museum of Art, The Walter H. and Leonore Annenberg Collection, 1998.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DT1946.jpg"
     },
@@ -362,6 +380,7 @@ const ART_DB = {
       genre: "portrait",
       museumId: "met",
       galleryRoom: "Room 616",
+      patron: "Don Antonio Ruffo of Messina",
       provenance: "Commissioned by Don Antonio Ruffo of Messina. Sold at auction in 1961 for $2.3 million, a record at the time. Acquired by the Metropolitan Museum of Art.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-30758-001.jpg"
     },
@@ -374,6 +393,7 @@ const ART_DB = {
       genre: "portrait",
       museumId: "met",
       galleryRoom: "Room 616",
+      patron: "Self-funded (personal work)",
       provenance: "One of over 80 self-portraits by Rembrandt. Acquired by the Metropolitan Museum of Art, Bequest of Benjamin Altman, 1913.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-16323-001.jpg"
     },
@@ -386,6 +406,7 @@ const ART_DB = {
       genre: "portrait",
       museumId: "met",
       galleryRoom: "Room 616",
+      patron: "Self-funded (personal work)",
       provenance: "Portrait of Rembrandt's companion Hendrickje Stoffels. Acquired by the Metropolitan Museum of Art, Gift of Archer M. Huntington, 1926.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP145920.jpg"
     },
@@ -398,6 +419,7 @@ const ART_DB = {
       genre: "portrait",
       museumId: "met",
       galleryRoom: "Room 616",
+      patron: "Herman Doomer (subject/commissioner)",
       provenance: "Portrait of the Amsterdam ebony worker Herman Doomer. Acquired by the Metropolitan Museum of Art, H. O. Havemeyer Collection, 1929.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP145921.jpg"
     },
@@ -410,6 +432,7 @@ const ART_DB = {
       genre: "portrait",
       museumId: "met",
       galleryRoom: "Room 616",
+      patron: "Unknown (private commission)",
       provenance: "Companion piece to Woman with a Pink. Acquired by the Metropolitan Museum of Art, Bequest of Benjamin Altman, 1913.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP145909.jpg"
     },
@@ -423,6 +446,7 @@ const ART_DB = {
       genre: "ukiyo-e",
       museumId: "met",
       galleryRoom: "Gallery 231",
+      patron: "Nishimuraya Yohachi (publisher)",
       provenance: "Part of the series Thirty-six Views of Mount Fuji. This impression acquired by the Metropolitan Museum of Art, H. O. Havemeyer Collection, 1929.",
       image: "https://images.metmuseum.org/CRDImages/as/web-large/DP130155.jpg"
     },
@@ -435,6 +459,7 @@ const ART_DB = {
       genre: "ukiyo-e",
       museumId: "artic",
       galleryRoom: "Gallery 107",
+      patron: "Nishimuraya Yohachi (publisher)",
       provenance: "Part of the series Thirty-six Views of Mount Fuji. Acquired by the Art Institute of Chicago, Clarence Buckingham Collection.",
       image: "https://www.artic.edu/iiif/2/b3974542-b9b4-7568-fc4b-966738f61d78/full/400,/0/default.jpg"
     },
@@ -448,6 +473,7 @@ const ART_DB = {
       genre: "genre-painting",
       museumId: "artic",
       galleryRoom: "Gallery 201",
+      patron: "Paul Durand-Ruel (dealer/buyer)",
       provenance: "Painted at the Maison Fournaise restaurant in Chatou. Acquired by the Art Institute of Chicago, Mr. and Mrs. Lewis Larned Coburn Memorial Collection.",
       image: "https://www.artic.edu/iiif/2/3a608f55-d76e-fa96-d0b1-0789fbc48f1e/full/400,/0/default.jpg"
     },
@@ -460,6 +486,7 @@ const ART_DB = {
       genre: "genre-painting",
       museumId: "artic",
       galleryRoom: "Gallery 201",
+      patron: "Self-funded (exhibited independently)",
       provenance: "Depicts Francisca and Angelina Wartenberg performing at the Cirque Fernando in Montmartre. Acquired by the Art Institute of Chicago, Potter Palmer Collection.",
       image: "https://www.artic.edu/iiif/2/321c45f5-22a3-84a2-44cc-cf66642d4cf2/full/400,/0/default.jpg"
     },
@@ -472,6 +499,7 @@ const ART_DB = {
       genre: "portrait",
       museumId: "met",
       galleryRoom: "Room 824",
+      patron: "Georges Charpentier (publisher, commissioner)",
       provenance: "Commissioned by publisher Georges Charpentier. Exhibited at the Salon of 1879 to great acclaim. Acquired by the Metropolitan Museum of Art, Catharine Lorillard Wolfe Collection, 1907.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-35674-001.jpg"
     },
@@ -485,6 +513,7 @@ const ART_DB = {
       genre: "genre-painting",
       museumId: "met",
       galleryRoom: "Room 815",
+      patron: "Jean-Baptiste Faure (opera singer, collector)",
       provenance: "Commissioned by Jean-Baptiste Faure. Acquired by the Metropolitan Museum of Art, Bequest of Mrs. Harry Payne Bingham, 1986.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-20101-001.jpg"
     },
@@ -498,6 +527,7 @@ const ART_DB = {
       genre: "genre-painting",
       museumId: "artic",
       galleryRoom: "Gallery 240",
+      patron: "Self-funded (exhibited at Impressionist show)",
       provenance: "Exhibited at the eighth and final Impressionist exhibition in 1886. Acquired by the Art Institute of Chicago, Helen Birch Bartlett Memorial Collection, 1926.",
       image: "https://www.artic.edu/iiif/2/2d484387-2509-5e8e-2c43-22f9981972eb/full/400,/0/default.jpg"
     },
@@ -511,6 +541,7 @@ const ART_DB = {
       genre: "landscape",
       museumId: "artic",
       galleryRoom: "Gallery 201",
+      patron: "Self-funded (independently wealthy)",
       provenance: "Exhibited at the third Impressionist exhibition in 1877. Acquired by the Art Institute of Chicago, Charles H. and Mary F. S. Worcester Collection, 1964.",
       image: "https://www.artic.edu/iiif/2/f8fd76e9-c396-5678-36ed-6a348c904d27/full/400,/0/default.jpg"
     },
@@ -524,6 +555,7 @@ const ART_DB = {
       genre: "genre-painting",
       museumId: "artic",
       galleryRoom: "Gallery 273",
+      patron: "Self-funded (independently wealthy)",
       provenance: "One of Cassatt's most celebrated works. Acquired by the Art Institute of Chicago, Robert A. Waller Fund, 1910.",
       image: "https://www.artic.edu/iiif/2/3b885ae0-4d46-5fe4-d70a-00474827f02c/full/400,/0/default.jpg"
     },
@@ -537,6 +569,7 @@ const ART_DB = {
       genre: "genre-painting",
       museumId: "artic",
       galleryRoom: "Gallery 262",
+      patron: "Friends of American Art (acquisition fund)",
       provenance: "Purchased by the Art Institute of Chicago within months of its completion in 1942. Friends of American Art Collection.",
       image: "https://www.artic.edu/iiif/2/831a05de-d3f6-f4fa-a460-23008dd58dda/full/400,/0/default.jpg"
     },
@@ -550,6 +583,7 @@ const ART_DB = {
       genre: "religious",
       museumId: "met",
       galleryRoom: "Room 620",
+      patron: "Unknown (likely church commission)",
       provenance: "One of Caravaggio's last paintings. Acquired by the Metropolitan Museum of Art, Gift of Herman and Lila Grunebaum, 1997.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-12413-001.jpg"
     },
@@ -563,6 +597,7 @@ const ART_DB = {
       genre: "religious",
       museumId: "met",
       galleryRoom: "Room 825",
+      patron: "Self-funded (painted in Tahiti)",
       provenance: "Painted during Gauguin's first trip to Tahiti. He considered it his finest Tahitian work. Acquired by the Metropolitan Museum of Art, Bequest of Sam A. Lewisohn, 1951.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DT1025.jpg"
     },
@@ -576,6 +611,7 @@ const ART_DB = {
       genre: "genre-painting",
       museumId: "met",
       galleryRoom: "Room 810",
+      patron: "Self-funded (personal work)",
       provenance: "Painted during a visit to Monet at Argenteuil. Acquired by the Metropolitan Museum of Art, Bequest of Joan Whitney Payson, 1975.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-25465-001.jpg"
     },
@@ -588,6 +624,7 @@ const ART_DB = {
       genre: "portrait",
       museumId: "met",
       galleryRoom: "Room 810",
+      patron: "Self-funded (personal work)",
       provenance: "Depicts Victorine Meurent, Manet's favorite model. Acquired by the Metropolitan Museum of Art, Gift of Erwin Davis, 1889.",
       image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP273977.jpg"
     }
