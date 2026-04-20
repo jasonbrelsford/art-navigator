@@ -325,3 +325,20 @@ html, body {
   .detail-image { width: 100%; }
   .gallery-title { font-size: 2rem; letter-spacing: 0.15em; }
 }
+
+/* Graph link */
+.graph-link {
+  display: inline-block;
+  margin-top: 30px;
+  font-size: 0.85rem;
+  color: var(--accent);
+  text-decoration: none;
+  border: 1px solid rgba(110, 95, 168, 0.3);
+  padding: 10px 24px;
+  transition: all 0.3s;
+  letter-spacing: 0.08em;
+}
+.graph-link:hover {
+  border-color: var(--gold);
+  color: var(--gold);
+}
