@@ -1,5 +1,4 @@
-// Art database — real works from major museums
-// Images use Wikimedia Commons (public domain)
+// Art database — verified open-access images from Met Museum & Art Institute of Chicago
 const ART_DB = {
   artists: {
     "vermeer": {
@@ -30,13 +29,6 @@ const ART_DB = {
       bio: "Dutch Golden Age painter and printmaker. An innovative and prolific master in three media, he is generally considered one of the greatest visual artists in the history of art. His works depict a range of style and subject matter, from portraits to landscapes, and from biblical to mythological scenes.",
       contact: "Historical artist (1606–1669) — no living contact. Rembrandt House Museum, Jodenbreestraat 4, 1011 NK Amsterdam, Netherlands."
     },
-    "klimt": {
-      name: "Gustav Klimt",
-      born: "1862, Baumgarten, Austrian Empire",
-      died: "1918, Vienna, Austria-Hungary",
-      bio: "Austrian symbolist painter and one of the most prominent members of the Vienna Secession movement. Known for his paintings, murals, sketches, and other objets d'art, primarily distinguished by his use of gold leaf and elaborate decorative patterns.",
-      contact: "Historical artist (1862–1918) — no living contact. Klimt Foundation, Feldmühlgasse 15, 1130 Vienna, Austria."
-    },
     "hokusai": {
       name: "Katsushika Hokusai",
       born: "1760, Edo (Tokyo), Japan",
@@ -44,33 +36,82 @@ const ART_DB = {
       bio: "Japanese ukiyo-e artist of the Edo period, active as a painter and printmaker. Achieved international fame with the woodblock print series Thirty-six Views of Mount Fuji, which includes the iconic print The Great Wave off Kanagawa.",
       contact: "Historical artist (1760–1849) — no living contact. Sumida Hokusai Museum, 2-7-2 Kamezawa, Sumida City, Tokyo 130-0014, Japan."
     },
-    "daVinci": {
-      name: "Leonardo da Vinci",
-      born: "1452, Vinci, Republic of Florence",
-      died: "1519, Amboise, Kingdom of France",
-      bio: "Italian polymath of the High Renaissance who was active as a painter, draughtsman, engineer, scientist, theorist, sculptor, and architect. His genius epitomized the Renaissance humanist ideal, and his collective works compose a contribution to later generations of artists.",
-      contact: "Historical artist (1452–1519) — no living contact. Museo Leonardiano, Piazza dei Conti Guidi, 50059 Vinci FI, Italy."
-    },
     "renoir": {
       name: "Pierre-Auguste Renoir",
       born: "1841, Limoges, France",
       died: "1919, Cagnes-sur-Mer, France",
       bio: "French Impressionist painter who celebrated beauty and feminine sensuality. He was a leading painter in the development of the Impressionist style, known for his vibrant light and saturated color, most often focusing on people in intimate and candid compositions.",
       contact: "Historical artist (1841–1919) — no living contact. Musée Renoir, Chemin des Collettes, 06800 Cagnes-sur-Mer, France."
+    },
+    "degas": {
+      name: "Edgar Degas",
+      born: "1834, Paris, France",
+      died: "1917, Paris, France",
+      bio: "French Impressionist artist famous for his paintings, sculptures, prints, and drawings. He is especially identified with the subject of dance; more than half of his works depict dancers. Regarded as one of the founders of Impressionism.",
+      contact: "Historical artist (1834–1917) — no living contact. Musée d'Orsay, 1 Rue de la Légion d'Honneur, 75007 Paris, France."
+    },
+    "seurat": {
+      name: "Georges Seurat",
+      born: "1859, Paris, France",
+      died: "1891, Paris, France",
+      bio: "French post-Impressionist artist and the pioneer of the Neo-Impressionist technique known as Pointillism. His large-scale work A Sunday on La Grande Jatte altered the direction of modern art by initiating Neo-Impressionism.",
+      contact: "Historical artist (1859–1891) — no living contact. Art Institute of Chicago, 111 S Michigan Ave, Chicago, IL 60603, USA."
+    },
+    "caillebotte": {
+      name: "Gustave Caillebotte",
+      born: "1848, Paris, France",
+      died: "1894, Gennevilliers, France",
+      bio: "French painter and patron of the Impressionists. His paintings combined Impressionist and Realist elements, often depicting urban scenes of Paris with striking perspective. Also a major collector who bequeathed his collection to the French state.",
+      contact: "Historical artist (1848–1894) — no living contact. Musée d'Orsay, 1 Rue de la Légion d'Honneur, 75007 Paris, France."
+    },
+    "cassatt": {
+      name: "Mary Cassatt",
+      born: "1844, Allegheny City, Pennsylvania, USA",
+      died: "1926, Le Mesnil-Théribus, France",
+      bio: "American Impressionist painter and printmaker who lived much of her adult life in France. She was one of only three female artists invited to exhibit with the Impressionists. Known for her intimate depictions of mothers and children.",
+      contact: "Historical artist (1844–1926) — no living contact. Art Institute of Chicago, 111 S Michigan Ave, Chicago, IL 60603, USA."
+    },
+    "hopper": {
+      name: "Edward Hopper",
+      born: "1882, Nyack, New York, USA",
+      died: "1967, New York City, USA",
+      bio: "American realist painter and printmaker. His most famous work, Nighthawks, depicts people sitting in a downtown diner late at night. His stark, cinematic compositions and masterful use of light and shadow have made him one of America's most recognizable artists.",
+      contact: "Historical artist (1882–1967) — no living contact. Whitney Museum of American Art, 99 Gansevoort St, New York, NY 10014, USA."
+    },
+    "caravaggio": {
+      name: "Caravaggio (Michelangelo Merisi)",
+      born: "1571, Milan, Duchy of Milan",
+      died: "1610, Porto Ercole, Tuscany",
+      bio: "Italian painter active in Rome for most of his artistic life. His paintings combine a realistic observation of the human state with a dramatic use of lighting, known as chiaroscuro. He had a profound influence on Baroque painting.",
+      contact: "Historical artist (1571–1610) — no living contact. Galleria Borghese, Piazzale Scipione Borghese 5, 00197 Rome, Italy."
+    },
+    "gauguin": {
+      name: "Paul Gauguin",
+      born: "1848, Paris, France",
+      died: "1903, Atuona, Marquesas Islands",
+      bio: "French Post-Impressionist artist who was not well appreciated until after his death. He is now recognized for his experimental use of color and Synthetist style that were distinct from Impressionism. His work influenced the French avant-garde and many modern artists.",
+      contact: "Historical artist (1848–1903) — no living contact. Musée d'Orsay, 1 Rue de la Légion d'Honneur, 75007 Paris, France."
+    },
+    "manet": {
+      name: "Édouard Manet",
+      born: "1832, Paris, France",
+      died: "1883, Paris, France",
+      bio: "French modernist painter, one of the first 19th-century artists to paint modern life. A pivotal figure in the transition from Realism to Impressionism. His bold brushwork and contemporary subjects were controversial in their time.",
+      contact: "Historical artist (1832–1883) — no living contact. Musée d'Orsay, 1 Rue de la Légion d'Honneur, 75007 Paris, France."
     }
   },
   museums: {
-    "rijksmuseum": {
-      name: "Rijksmuseum",
-      city: "Amsterdam, Netherlands",
-      address: "Museumstraat 1, 1071 XX Amsterdam, Netherlands",
-      website: "https://www.rijksmuseum.nl"
+    "met": {
+      name: "The Metropolitan Museum of Art",
+      city: "New York, USA",
+      address: "1000 Fifth Avenue, New York, NY 10028, USA",
+      website: "https://www.metmuseum.org"
     },
-    "louvre": {
-      name: "Musée du Louvre",
-      city: "Paris, France",
-      address: "Rue de Rivoli, 75001 Paris, France",
-      website: "https://www.louvre.fr"
+    "artic": {
+      name: "Art Institute of Chicago",
+      city: "Chicago, USA",
+      address: "111 S Michigan Ave, Chicago, IL 60603, USA",
+      website: "https://www.artic.edu"
     },
     "orsay": {
       name: "Musée d'Orsay",
@@ -78,236 +119,301 @@ const ART_DB = {
       address: "1 Rue de la Légion d'Honneur, 75007 Paris, France",
       website: "https://www.musee-orsay.fr"
     },
-    "met": {
-      name: "The Metropolitan Museum of Art",
-      city: "New York, USA",
-      address: "1000 Fifth Avenue, New York, NY 10028, USA",
-      website: "https://www.metmuseum.org"
+    "rijksmuseum": {
+      name: "Rijksmuseum",
+      city: "Amsterdam, Netherlands",
+      address: "Museumstraat 1, 1071 XX Amsterdam, Netherlands",
+      website: "https://www.rijksmuseum.nl"
     },
     "nationalgallery": {
       name: "National Gallery",
       city: "London, UK",
       address: "Trafalgar Square, London WC2N 5DN, UK",
       website: "https://www.nationalgallery.org.uk"
-    },
-    "belvedere": {
-      name: "Österreichische Galerie Belvedere",
-      city: "Vienna, Austria",
-      address: "Prinz-Eugen-Straße 27, 1030 Vienna, Austria",
-      website: "https://www.belvedere.at"
-    },
-    "mfa_boston": {
-      name: "Museum of Fine Arts, Boston",
-      city: "Boston, USA",
-      address: "465 Huntington Avenue, Boston, MA 02115, USA",
-      website: "https://www.mfa.org"
-    },
-    "vangogh_museum": {
-      name: "Van Gogh Museum",
-      city: "Amsterdam, Netherlands",
-      address: "Museumplein 6, 1071 DJ Amsterdam, Netherlands",
-      website: "https://www.vangoghmuseum.nl"
-    },
-    "neue_galerie": {
-      name: "Neue Galerie New York",
-      city: "New York, USA",
-      address: "1048 Fifth Avenue, New York, NY 10028, USA",
-      website: "https://www.neuegalerie.org"
-    },
-    "art_institute_chicago": {
-      name: "Art Institute of Chicago",
-      city: "Chicago, USA",
-      address: "111 S Michigan Ave, Chicago, IL 60603, USA",
-      website: "https://www.artic.edu"
-    },
-    "mauritshuis": {
-      name: "Mauritshuis",
-      city: "The Hague, Netherlands",
-      address: "Plein 29, 2511 CS The Hague, Netherlands",
-      website: "https://www.mauritshuis.nl"
     }
   },
   artworks: [
+    // === VERMEER ===
     {
-      id: "vermeer-girl-pearl",
-      title: "Girl with a Pearl Earring",
+      id: "vermeer-water-pitcher",
+      title: "Young Woman with a Water Pitcher",
       artistId: "vermeer",
-      year: "c. 1665",
+      year: "c. 1662",
+      medium: "Oil on canvas",
+      genre: "genre-painting",
+      museumId: "met",
+      galleryRoom: "Room 614",
+      provenance: "Possibly in the Dissius sale, Amsterdam, 1696. Acquired by Henry Marquand and donated to the Metropolitan Museum of Art in 1889.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP353257.jpg"
+    },
+    {
+      id: "vermeer-study-young-woman",
+      title: "Study of a Young Woman",
+      artistId: "vermeer",
+      year: "c. 1665–1667",
       medium: "Oil on canvas",
       genre: "portrait",
-      museumId: "mauritshuis",
-      galleryRoom: "Room 15",
-      provenance: "Possibly commissioned by Pieter van Ruijven. Sold at auction in The Hague in 1881 for 2 guilders and 30 cents. Donated to the Mauritshuis in 1903 by A.A. des Tombe.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/0/0f/1665_Girl_with_a_Pearl_Earring.jpg/400px-1665_Girl_with_a_Pearl_Earring.jpg"
+      museumId: "met",
+      galleryRoom: "Room 614",
+      provenance: "Collection of Rodolphe Kann, Paris. Acquired by Benjamin Altman and bequeathed to the Metropolitan Museum of Art in 1913.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP353256.jpg"
     },
     {
-      id: "vermeer-milkmaid",
-      title: "The Milkmaid",
+      id: "vermeer-young-woman-lute",
+      title: "Young Woman with a Lute",
       artistId: "vermeer",
-      year: "c. 1658",
+      year: "c. 1662–1663",
       medium: "Oil on canvas",
       genre: "genre-painting",
-      museumId: "rijksmuseum",
-      galleryRoom: "Gallery of Honour, Room 2.20",
-      provenance: "First recorded in the 1696 auction of Jacob Dissius in Amsterdam. Passed through several Dutch collections before being acquired by the Rijksmuseum in 1908.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/20/Johannes_Vermeer_-_Het_melkmeisje_-_Google_Art_Project.jpg/400px-Johannes_Vermeer_-_Het_melkmeisje_-_Google_Art_Project.jpg"
+      museumId: "met",
+      galleryRoom: "Room 614",
+      provenance: "Possibly in the Dissius sale, Amsterdam, 1696. Acquired by Collis P. Huntington. Bequeathed to the Metropolitan Museum of Art in 1900.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP354965.jpg"
     },
+    // === MONET ===
     {
-      id: "vermeer-art-painting",
-      title: "The Art of Painting",
-      artistId: "vermeer",
-      year: "c. 1666–1668",
-      medium: "Oil on canvas",
-      genre: "genre-painting",
-      museumId: "belvedere",
-      galleryRoom: "Upper Belvedere, Room 4",
-      provenance: "Kept by Vermeer's widow Catharina Bolnes. Acquired by Count Czernin in 1813. Controversially acquired by Adolf Hitler in 1940. Recovered by the Allies and transferred to the Austrian state in 1946.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4a/Johannes_Vermeer_-_The_Art_of_Painting_-_Google_Art_Project.jpg/400px-Johannes_Vermeer_-_The_Art_of_Painting_-_Google_Art_Project.jpg"
-    },
-    {
-      id: "monet-waterlilies",
+      id: "monet-water-lilies",
       title: "Water Lilies",
       artistId: "monet",
       year: "1906",
       medium: "Oil on canvas",
       genre: "landscape",
-      museumId: "art_institute_chicago",
+      museumId: "artic",
       galleryRoom: "Gallery 243",
       provenance: "Painted at Giverny. Sold by Monet to Durand-Ruel gallery in 1909. Passed through several private collections. Acquired by the Art Institute of Chicago in 1933.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/aa/Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg/400px-Claude_Monet_-_Water_Lilies_-_1906%2C_Ryerson.jpg"
+      image: "https://www.artic.edu/iiif/2/3c27b499-af56-f0d5-93b5-a7f2f1ad5813/full/400,/0/default.jpg"
     },
     {
-      id: "monet-impression",
-      title: "Impression, Sunrise",
+      id: "monet-water-lily-pond",
+      title: "Water Lily Pond",
       artistId: "monet",
-      year: "1872",
+      year: "1900",
       medium: "Oil on canvas",
       genre: "landscape",
-      museumId: "orsay",
-      galleryRoom: "Musée Marmottan Monet (on loan)",
-      provenance: "Exhibited at the first Impressionist exhibition in 1874, where it gave the movement its name. Stolen in 1985 from the Marmottan and recovered in 1990.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/59/Monet_-_Impression%2C_Sunrise.jpg/400px-Monet_-_Impression%2C_Sunrise.jpg"
+      museumId: "artic",
+      galleryRoom: "Gallery 243",
+      provenance: "Painted at Giverny. Part of a series depicting the Japanese bridge over Monet's water garden. Acquired by the Art Institute of Chicago.",
+      image: "https://www.artic.edu/iiif/2/8534685d-1102-e1e3-e194-94f6e925e8b0/full/400,/0/default.jpg"
     },
     {
-      id: "monet-rouen",
-      title: "Rouen Cathedral, West Façade, Sunlight",
+      id: "monet-normandy-train",
+      title: "Arrival of the Normandy Train, Gare Saint-Lazare",
       artistId: "monet",
-      year: "1894",
+      year: "1877",
       medium: "Oil on canvas",
       genre: "landscape",
-      museumId: "met",
-      galleryRoom: "Gallery 819",
-      provenance: "Part of a series of 30 paintings of Rouen Cathedral. Acquired by the Metropolitan Museum of Art through the Theodore M. Davis Collection, Bequest of Theodore M. Davis, 1915.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Claude_Monet_-_Rouen_Cathedral%2C_West_Fa%C3%A7ade%2C_Sunlight_-_Google_Art_Project.jpg/400px-Claude_Monet_-_Rouen_Cathedral%2C_West_Fa%C3%A7ade%2C_Sunlight_-_Google_Art_Project.jpg"
+      museumId: "artic",
+      galleryRoom: "Gallery 201",
+      provenance: "Part of Monet's series of the Gare Saint-Lazare. Exhibited at the third Impressionist exhibition in 1877. Acquired by the Art Institute of Chicago.",
+      image: "https://www.artic.edu/iiif/2/0f1cc0e0-e42e-be16-3f71-2022da38cb93/full/400,/0/default.jpg"
     },
     {
-      id: "vangogh-starry",
-      title: "The Starry Night",
+      id: "monet-stacks-wheat",
+      title: "Stacks of Wheat (End of Summer)",
+      artistId: "monet",
+      year: "1890–1891",
+      medium: "Oil on canvas",
+      genre: "landscape",
+      museumId: "artic",
+      galleryRoom: "Gallery 243",
+      provenance: "Part of Monet's famous Haystacks series. Painted near his home in Giverny. Acquired by the Art Institute of Chicago.",
+      image: "https://www.artic.edu/iiif/2/a38e2828-ec6f-ece1-a30f-70243449197b/full/400,/0/default.jpg"
+    },
+    {
+      id: "monet-beach-sainte-adresse",
+      title: "The Beach at Sainte-Adresse",
+      artistId: "monet",
+      year: "1867",
+      medium: "Oil on canvas",
+      genre: "landscape",
+      museumId: "artic",
+      galleryRoom: "Gallery 201",
+      provenance: "Painted during Monet's early career at the Normandy coast. Acquired by the Art Institute of Chicago.",
+      image: "https://www.artic.edu/iiif/2/95be2572-b53d-8e7b-abc9-10eb48d4fa5d/full/400,/0/default.jpg"
+    },
+    // === VAN GOGH ===
+    {
+      id: "vangogh-wheat-cypresses",
+      title: "Wheat Field with Cypresses",
       artistId: "vangogh",
       year: "1889",
       medium: "Oil on canvas",
       genre: "landscape",
       museumId: "met",
-      galleryRoom: "MoMA Gallery 502 (on loan from MoMA)",
-      provenance: "Painted at the Saint-Paul-de-Mausole asylum in Saint-Rémy-de-Provence. Acquired by Johanna van Gogh-Bonger after Vincent's death. Sold to various collectors. Acquired by MoMA in 1941 through the Lillie P. Bliss Bequest.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ea/Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg/400px-Van_Gogh_-_Starry_Night_-_Google_Art_Project.jpg"
+      galleryRoom: "Room 822",
+      provenance: "Painted at the Saint-Paul-de-Mausole asylum in Saint-Rémy-de-Provence. Acquired by the Metropolitan Museum of Art, Purchase, The Annenberg Foundation Gift, 1993.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-42549-001.jpg"
+    },
+    {
+      id: "vangogh-self-portrait-hat",
+      title: "Self-Portrait with a Straw Hat",
+      artistId: "vangogh",
+      year: "1887",
+      medium: "Oil on canvas",
+      genre: "portrait",
+      museumId: "met",
+      galleryRoom: "Room 825",
+      provenance: "Painted in Paris. Reverse side contains The Potato Peeler. Part of the Bequest of Miss Adelaide Milton de Groot to the Metropolitan Museum of Art, 1967.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DT1502_cropped2.jpg"
+    },
+    {
+      id: "vangogh-irises",
+      title: "Irises",
+      artistId: "vangogh",
+      year: "1890",
+      medium: "Oil on canvas",
+      genre: "still-life",
+      museumId: "met",
+      galleryRoom: "Room 822",
+      provenance: "Painted at Saint-Rémy-de-Provence. Acquired by the Metropolitan Museum of Art, Gift of Adele R. Levy, 1958.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP346474.jpg"
     },
     {
       id: "vangogh-sunflowers",
       title: "Sunflowers",
       artistId: "vangogh",
+      year: "1887",
+      medium: "Oil on canvas",
+      genre: "still-life",
+      museumId: "met",
+      galleryRoom: "Room 825",
+      provenance: "Painted in Paris. Part of a series of still lifes with sunflowers. Acquired by the Metropolitan Museum of Art, Rogers Fund, 1949.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-41223-001.jpg"
+    },
+    {
+      id: "vangogh-cypresses",
+      title: "Cypresses",
+      artistId: "vangogh",
+      year: "1889",
+      medium: "Oil on canvas",
+      genre: "landscape",
+      museumId: "met",
+      galleryRoom: "Room 825",
+      provenance: "Painted at Saint-Rémy-de-Provence. Van Gogh considered this among his best summer landscapes. Acquired by the Metropolitan Museum of Art, Rogers Fund, 1949.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP130999.jpg"
+    },
+    {
+      id: "vangogh-oleanders",
+      title: "Oleanders",
+      artistId: "vangogh",
       year: "1888",
       medium: "Oil on canvas",
       genre: "still-life",
-      museumId: "nationalgallery",
-      galleryRoom: "Room 43",
-      provenance: "Painted in Arles to decorate Gauguin's room. Acquired by the National Gallery in 1924 from the Courtauld Fund.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/46/Vincent_Willem_van_Gogh_127.jpg/400px-Vincent_Willem_van_Gogh_127.jpg"
+      museumId: "met",
+      galleryRoom: "Room 825",
+      provenance: "Painted in Arles. Acquired by the Metropolitan Museum of Art, Gift of Mr. and Mrs. John L. Loeb, 1962.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DT1494.jpg"
     },
     {
       id: "vangogh-bedroom",
       title: "The Bedroom",
       artistId: "vangogh",
-      year: "1888",
+      year: "1889",
       medium: "Oil on canvas",
       genre: "interior",
-      museumId: "vangogh_museum",
-      galleryRoom: "Floor 1, Room 1.14",
-      provenance: "Painted in the Yellow House in Arles. One of three versions. This version remained with the Van Gogh family and was placed on permanent loan to the Van Gogh Museum.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/76/Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg/400px-Vincent_van_Gogh_-_De_slaapkamer_-_Google_Art_Project.jpg"
+      museumId: "artic",
+      galleryRoom: "Gallery 241",
+      provenance: "Third version painted at Saint-Rémy. Acquired by the Art Institute of Chicago through the Helen Birch Bartlett Memorial Collection.",
+      image: "https://www.artic.edu/iiif/2/6644829f-f292-c5c4-a73c-0356a6fdbf0d/full/400,/0/default.jpg"
     },
     {
-      id: "rembrandt-nightwatch",
-      title: "The Night Watch",
-      artistId: "rembrandt",
-      year: "1642",
+      id: "vangogh-self-portrait-artic",
+      title: "Self-Portrait",
+      artistId: "vangogh",
+      year: "1887",
+      medium: "Oil on artist's board, mounted on cradled panel",
+      genre: "portrait",
+      museumId: "artic",
+      galleryRoom: "Gallery 241",
+      provenance: "Painted in Paris during Van Gogh's time with the Impressionists. Acquired by the Art Institute of Chicago, Joseph Winterbotham Collection.",
+      image: "https://www.artic.edu/iiif/2/47c5bcb8-62ef-e5d7-55e7-f5121f409a30/full/400,/0/default.jpg"
+    },
+    {
+      id: "vangogh-first-steps",
+      title: "First Steps, after Millet",
+      artistId: "vangogh",
+      year: "1890",
       medium: "Oil on canvas",
-      genre: "group-portrait",
-      museumId: "rijksmuseum",
-      galleryRoom: "Gallery of Honour, Night Watch Gallery",
-      provenance: "Commissioned by Captain Frans Banninck Cocq and his civic guard. Hung in the Kloveniersdoelen, then Amsterdam Town Hall. Transferred to the Rijksmuseum in 1808.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/The_Night_Watch_-_HD.jpg/400px-The_Night_Watch_-_HD.jpg"
+      genre: "genre-painting",
+      museumId: "met",
+      galleryRoom: "Room 825",
+      provenance: "Painted at Saint-Rémy after a print by Jean-François Millet. Acquired by the Metropolitan Museum of Art, Gift of George N. and Helen M. Richard, 1964.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP124808.jpg"
+    },
+    {
+      id: "vangogh-olive-trees",
+      title: "Olive Trees",
+      artistId: "vangogh",
+      year: "1889",
+      medium: "Oil on canvas",
+      genre: "landscape",
+      museumId: "met",
+      galleryRoom: "Room 822",
+      provenance: "Painted at Saint-Rémy-de-Provence. Part of a series of olive grove paintings. Acquired by the Metropolitan Museum of Art, The Walter H. and Leonore Annenberg Collection, 1998.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DT1946.jpg"
+    },
+    // === REMBRANDT ===
+    {
+      id: "rembrandt-aristotle",
+      title: "Aristotle with a Bust of Homer",
+      artistId: "rembrandt",
+      year: "1653",
+      medium: "Oil on canvas",
+      genre: "portrait",
+      museumId: "met",
+      galleryRoom: "Room 616",
+      provenance: "Commissioned by Don Antonio Ruffo of Messina. Sold at auction in 1961 for $2.3 million, a record at the time. Acquired by the Metropolitan Museum of Art.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-30758-001.jpg"
     },
     {
       id: "rembrandt-self-portrait",
-      title: "Self-Portrait with Two Circles",
+      title: "Self-Portrait",
       artistId: "rembrandt",
-      year: "c. 1665–1669",
+      year: "1660",
       medium: "Oil on canvas",
       genre: "portrait",
-      museumId: "nationalgallery",
-      galleryRoom: "Room 24",
-      provenance: "Provenance before 1720 unknown. Passed through the Iveagh Bequest. Acquired by Kenwood House, London. Now on display at the National Gallery.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/b/b7/Rembrandt_van_Rijn_-_Self-Portrait_with_Two_Circles.jpg/400px-Rembrandt_van_Rijn_-_Self-Portrait_with_Two_Circles.jpg"
+      museumId: "met",
+      galleryRoom: "Room 616",
+      provenance: "One of over 80 self-portraits by Rembrandt. Acquired by the Metropolitan Museum of Art, Bequest of Benjamin Altman, 1913.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-16323-001.jpg"
     },
     {
-      id: "rembrandt-anatomy",
-      title: "The Anatomy Lesson of Dr. Nicolaes Tulp",
+      id: "rembrandt-hendrickje",
+      title: "Hendrickje Stoffels",
       artistId: "rembrandt",
-      year: "1632",
+      year: "c. 1654–1656",
       medium: "Oil on canvas",
-      genre: "group-portrait",
-      museumId: "mauritshuis",
-      galleryRoom: "Room 12",
-      provenance: "Commissioned by the Amsterdam Guild of Surgeons. Hung in the Waag (weigh house) in Amsterdam. Acquired by the Mauritshuis in 1828.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/4d/Rembrandt_-_The_Anatomy_Lesson_of_Dr_Nicolaes_Tulp.jpg/400px-Rembrandt_-_The_Anatomy_Lesson_of_Dr_Nicolaes_Tulp.jpg"
-    },
-    {
-      id: "klimt-kiss",
-      title: "The Kiss",
-      artistId: "klimt",
-      year: "1907–1908",
-      medium: "Oil and gold leaf on canvas",
-      genre: "symbolism",
-      museumId: "belvedere",
-      galleryRoom: "Upper Belvedere, Room 3",
-      provenance: "Exhibited at the Kunstschau Vienna in 1908. Purchased by the Austrian state gallery (now Belvedere) during the exhibition. Has remained in the collection since.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/4/40/The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg/400px-The_Kiss_-_Gustav_Klimt_-_Google_Cultural_Institute.jpg"
-    },
-    {
-      id: "klimt-adele",
-      title: "Portrait of Adele Bloch-Bauer I",
-      artistId: "klimt",
-      year: "1907",
-      medium: "Oil, silver, and gold on canvas",
       genre: "portrait",
-      museumId: "neue_galerie",
-      galleryRoom: "Gallery Floor 2",
-      provenance: "Commissioned by Ferdinand Bloch-Bauer. Seized by the Nazis in 1938. Subject of a landmark restitution case. Returned to Maria Altmann in 2006 and sold to Ronald Lauder for the Neue Galerie for $135 million.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/84/Gustav_Klimt_046.jpg/400px-Gustav_Klimt_046.jpg"
+      museumId: "met",
+      galleryRoom: "Room 616",
+      provenance: "Portrait of Rembrandt's companion Hendrickje Stoffels. Acquired by the Metropolitan Museum of Art, Gift of Archer M. Huntington, 1926.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP145920.jpg"
     },
     {
-      id: "klimt-tree-of-life",
-      title: "The Tree of Life",
-      artistId: "klimt",
-      year: "1909",
-      medium: "Tempera, watercolor, gold leaf, silver, chalk, pencil on paper",
-      genre: "symbolism",
-      museumId: "belvedere",
-      galleryRoom: "Design for the Stoclet Frieze — MAK Vienna",
-      provenance: "Created as a design for the dining room frieze of the Palais Stoclet in Brussels. The working drawings are held by the MAK (Museum of Applied Arts) in Vienna.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/e7/Gustav_Klimt_-_Der_Lebensbaum.jpg/400px-Gustav_Klimt_-_Der_Lebensbaum.jpg"
+      id: "rembrandt-herman-doomer",
+      title: "Herman Doomer (ca. 1595–1650)",
+      artistId: "rembrandt",
+      year: "1640",
+      medium: "Oil on wood",
+      genre: "portrait",
+      museumId: "met",
+      galleryRoom: "Room 616",
+      provenance: "Portrait of the Amsterdam ebony worker Herman Doomer. Acquired by the Metropolitan Museum of Art, H. O. Havemeyer Collection, 1929.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP145921.jpg"
     },
+    {
+      id: "rembrandt-man-magnifying",
+      title: "Man with a Magnifying Glass",
+      artistId: "rembrandt",
+      year: "c. 1660",
+      medium: "Oil on canvas",
+      genre: "portrait",
+      museumId: "met",
+      galleryRoom: "Room 616",
+      provenance: "Companion piece to Woman with a Pink. Acquired by the Metropolitan Museum of Art, Bequest of Benjamin Altman, 1913.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP145909.jpg"
+    },
+    // === HOKUSAI ===
     {
       id: "hokusai-wave",
       title: "The Great Wave off Kanagawa",
@@ -317,98 +423,192 @@ const ART_DB = {
       genre: "ukiyo-e",
       museumId: "met",
       galleryRoom: "Gallery 231",
-      provenance: "Part of the series Thirty-six Views of Mount Fuji. Multiple impressions exist worldwide. This impression acquired by the Metropolitan Museum of Art, H. O. Havemeyer Collection, 1929.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/a/a5/Tsunami_by_hokusai_19th_century.jpg/400px-Tsunami_by_hokusai_19th_century.jpg"
+      provenance: "Part of the series Thirty-six Views of Mount Fuji. This impression acquired by the Metropolitan Museum of Art, H. O. Havemeyer Collection, 1929.",
+      image: "https://images.metmuseum.org/CRDImages/as/web-large/DP130155.jpg"
     },
     {
-      id: "hokusai-fuji-red",
-      title: "Fine Wind, Clear Morning (Red Fuji)",
+      id: "hokusai-wave-2",
+      title: "The Great Wave off Kanagawa (second impression)",
       artistId: "hokusai",
       year: "c. 1831",
       medium: "Woodblock print (nishiki-e)",
       genre: "ukiyo-e",
-      museumId: "mfa_boston",
-      galleryRoom: "Art of Asia Gallery",
-      provenance: "Part of the Thirty-six Views of Mount Fuji series. This impression from the William Sturgis Bigelow Collection, donated to the Museum of Fine Arts, Boston in 1911.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/5/5a/Katsushika_Hokusai_-_Fine_Wind%2C_Clear_Morning_%28Gaif%C5%AB_kaisei%29_-_Google_Art_Project.jpg/400px-Katsushika_Hokusai_-_Fine_Wind%2C_Clear_Morning_%28Gaif%C5%AB_kaisei%29_-_Google_Art_Project.jpg"
+      museumId: "artic",
+      galleryRoom: "Gallery 107",
+      provenance: "Part of the series Thirty-six Views of Mount Fuji. Acquired by the Art Institute of Chicago, Clarence Buckingham Collection.",
+      image: "https://www.artic.edu/iiif/2/b3974542-b9b4-7568-fc4b-966738f61d78/full/400,/0/default.jpg"
     },
+    // === RENOIR ===
     {
-      id: "davinci-mona-lisa",
-      title: "Mona Lisa",
-      artistId: "daVinci",
-      year: "c. 1503–1519",
-      medium: "Oil on poplar panel",
-      genre: "portrait",
-      museumId: "louvre",
-      galleryRoom: "Salle des États, Room 711",
-      provenance: "Believed to depict Lisa Gherardini. Acquired by King Francis I of France. Part of the French royal collection, then the Louvre since 1797. Briefly stolen by Vincenzo Peruggia in 1911 and recovered in 1913.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/e/ec/Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg/400px-Mona_Lisa%2C_by_Leonardo_da_Vinci%2C_from_C2RMF_retouched.jpg"
-    },
-    {
-      id: "davinci-lady-ermine",
-      title: "Lady with an Ermine",
-      artistId: "daVinci",
-      year: "c. 1489–1490",
-      medium: "Oil on walnut panel",
-      genre: "portrait",
-      museumId: "nationalgallery",
-      galleryRoom: "Czartoryski Museum, Kraków (on loan)",
-      provenance: "Depicts Cecilia Gallerani, mistress of Ludovico Sforza. Acquired by the Czartoryski family in 1798. Seized by Nazis in 1939, recovered in 1945. Purchased by the Polish government in 2016 for €100 million.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/f/f9/Lady_with_an_Ermine_-_Leonardo_da_Vinci_-_Google_Art_Project.jpg/400px-Lady_with_an_Ermine_-_Leonardo_da_Vinci_-_Google_Art_Project.jpg"
-    },
-    {
-      id: "renoir-moulin",
-      title: "Bal du moulin de la Galette",
-      artistId: "renoir",
-      year: "1876",
-      medium: "Oil on canvas",
-      genre: "genre-painting",
-      museumId: "orsay",
-      galleryRoom: "Gallery 32, Level 5",
-      provenance: "Exhibited at the third Impressionist exhibition in 1877. Acquired by Gustave Caillebotte. Bequeathed to the French state in 1894. Transferred to the Musée d'Orsay in 1986.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/2/21/Pierre-Auguste_Renoir%2C_Le_Moulin_de_la_Galette.jpg/400px-Pierre-Auguste_Renoir%2C_Le_Moulin_de_la_Galette.jpg"
-    },
-    {
-      id: "renoir-luncheon",
-      title: "Luncheon of the Boating Party",
+      id: "renoir-two-sisters",
+      title: "Two Sisters (On the Terrace)",
       artistId: "renoir",
       year: "1881",
       medium: "Oil on canvas",
       genre: "genre-painting",
-      museumId: "met",
-      galleryRoom: "The Phillips Collection, Washington D.C.",
-      provenance: "Painted at the Maison Fournaise restaurant in Chatou. Purchased by Paul Durand-Ruel in 1881. Acquired by Duncan Phillips in 1923 for $125,000.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/8/8d/Pierre-Auguste_Renoir_-_Luncheon_of_the_Boating_Party_-_Google_Art_Project.jpg/400px-Pierre-Auguste_Renoir_-_Luncheon_of_the_Boating_Party_-_Google_Art_Project.jpg"
+      museumId: "artic",
+      galleryRoom: "Gallery 201",
+      provenance: "Painted at the Maison Fournaise restaurant in Chatou. Acquired by the Art Institute of Chicago, Mr. and Mrs. Lewis Larned Coburn Memorial Collection.",
+      image: "https://www.artic.edu/iiif/2/3a608f55-d76e-fa96-d0b1-0789fbc48f1e/full/400,/0/default.jpg"
     },
     {
-      id: "renoir-swing",
-      title: "The Swing",
+      id: "renoir-acrobats",
+      title: "Acrobats at the Cirque Fernando",
       artistId: "renoir",
-      year: "1876",
+      year: "1879",
       medium: "Oil on canvas",
       genre: "genre-painting",
-      museumId: "orsay",
-      galleryRoom: "Gallery 32, Level 5",
-      provenance: "Painted in the garden of Renoir's studio in Montmartre. Part of the Caillebotte bequest to the French state in 1894. Transferred to the Musée d'Orsay in 1986.",
-      image: "https://upload.wikimedia.org/wikipedia/commons/thumb/7/73/Auguste_Renoir_-_The_Swing_-_Google_Art_Project.jpg/400px-Auguste_Renoir_-_The_Swing_-_Google_Art_Project.jpg"
+      museumId: "artic",
+      galleryRoom: "Gallery 201",
+      provenance: "Depicts Francisca and Angelina Wartenberg performing at the Cirque Fernando in Montmartre. Acquired by the Art Institute of Chicago, Potter Palmer Collection.",
+      image: "https://www.artic.edu/iiif/2/321c45f5-22a3-84a2-44cc-cf66642d4cf2/full/400,/0/default.jpg"
+    },
+    {
+      id: "renoir-charpentier",
+      title: "Madame Charpentier and Her Children",
+      artistId: "renoir",
+      year: "1878",
+      medium: "Oil on canvas",
+      genre: "portrait",
+      museumId: "met",
+      galleryRoom: "Room 824",
+      provenance: "Commissioned by publisher Georges Charpentier. Exhibited at the Salon of 1879 to great acclaim. Acquired by the Metropolitan Museum of Art, Catharine Lorillard Wolfe Collection, 1907.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-35674-001.jpg"
+    },
+    // === DEGAS ===
+    {
+      id: "degas-dance-class",
+      title: "The Dance Class",
+      artistId: "degas",
+      year: "1874",
+      medium: "Oil on canvas",
+      genre: "genre-painting",
+      museumId: "met",
+      galleryRoom: "Room 815",
+      provenance: "Commissioned by Jean-Baptiste Faure. Acquired by the Metropolitan Museum of Art, Bequest of Mrs. Harry Payne Bingham, 1986.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-20101-001.jpg"
+    },
+    // === SEURAT ===
+    {
+      id: "seurat-grande-jatte",
+      title: "A Sunday on La Grande Jatte — 1884",
+      artistId: "seurat",
+      year: "1884–1886",
+      medium: "Oil on canvas",
+      genre: "genre-painting",
+      museumId: "artic",
+      galleryRoom: "Gallery 240",
+      provenance: "Exhibited at the eighth and final Impressionist exhibition in 1886. Acquired by the Art Institute of Chicago, Helen Birch Bartlett Memorial Collection, 1926.",
+      image: "https://www.artic.edu/iiif/2/2d484387-2509-5e8e-2c43-22f9981972eb/full/400,/0/default.jpg"
+    },
+    // === CAILLEBOTTE ===
+    {
+      id: "caillebotte-paris-street",
+      title: "Paris Street; Rainy Day",
+      artistId: "caillebotte",
+      year: "1877",
+      medium: "Oil on canvas",
+      genre: "landscape",
+      museumId: "artic",
+      galleryRoom: "Gallery 201",
+      provenance: "Exhibited at the third Impressionist exhibition in 1877. Acquired by the Art Institute of Chicago, Charles H. and Mary F. S. Worcester Collection, 1964.",
+      image: "https://www.artic.edu/iiif/2/f8fd76e9-c396-5678-36ed-6a348c904d27/full/400,/0/default.jpg"
+    },
+    // === CASSATT ===
+    {
+      id: "cassatt-childs-bath",
+      title: "The Child's Bath",
+      artistId: "cassatt",
+      year: "1893",
+      medium: "Oil on canvas",
+      genre: "genre-painting",
+      museumId: "artic",
+      galleryRoom: "Gallery 273",
+      provenance: "One of Cassatt's most celebrated works. Acquired by the Art Institute of Chicago, Robert A. Waller Fund, 1910.",
+      image: "https://www.artic.edu/iiif/2/3b885ae0-4d46-5fe4-d70a-00474827f02c/full/400,/0/default.jpg"
+    },
+    // === HOPPER ===
+    {
+      id: "hopper-nighthawks",
+      title: "Nighthawks",
+      artistId: "hopper",
+      year: "1942",
+      medium: "Oil on canvas",
+      genre: "genre-painting",
+      museumId: "artic",
+      galleryRoom: "Gallery 262",
+      provenance: "Purchased by the Art Institute of Chicago within months of its completion in 1942. Friends of American Art Collection.",
+      image: "https://www.artic.edu/iiif/2/831a05de-d3f6-f4fa-a460-23008dd58dda/full/400,/0/default.jpg"
+    },
+    // === CARAVAGGIO ===
+    {
+      id: "caravaggio-denial-peter",
+      title: "The Denial of Saint Peter",
+      artistId: "caravaggio",
+      year: "1610",
+      medium: "Oil on canvas",
+      genre: "religious",
+      museumId: "met",
+      galleryRoom: "Room 620",
+      provenance: "One of Caravaggio's last paintings. Acquired by the Metropolitan Museum of Art, Gift of Herman and Lila Grunebaum, 1997.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-12413-001.jpg"
+    },
+    // === GAUGUIN ===
+    {
+      id: "gauguin-ia-orana",
+      title: "Ia Orana Maria (Hail Mary)",
+      artistId: "gauguin",
+      year: "1891",
+      medium: "Oil on canvas",
+      genre: "religious",
+      museumId: "met",
+      galleryRoom: "Room 825",
+      provenance: "Painted during Gauguin's first trip to Tahiti. He considered it his finest Tahitian work. Acquired by the Metropolitan Museum of Art, Bequest of Sam A. Lewisohn, 1951.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DT1025.jpg"
+    },
+    // === MANET ===
+    {
+      id: "manet-monet-garden",
+      title: "The Monet Family in Their Garden at Argenteuil",
+      artistId: "manet",
+      year: "1874",
+      medium: "Oil on canvas",
+      genre: "genre-painting",
+      museumId: "met",
+      galleryRoom: "Room 810",
+      provenance: "Painted during a visit to Monet at Argenteuil. Acquired by the Metropolitan Museum of Art, Bequest of Joan Whitney Payson, 1975.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP-25465-001.jpg"
+    },
+    {
+      id: "manet-young-lady",
+      title: "Young Lady in 1866",
+      artistId: "manet",
+      year: "1866",
+      medium: "Oil on canvas",
+      genre: "portrait",
+      museumId: "met",
+      galleryRoom: "Room 810",
+      provenance: "Depicts Victorine Meurent, Manet's favorite model. Acquired by the Metropolitan Museum of Art, Gift of Erwin Davis, 1889.",
+      image: "https://images.metmuseum.org/CRDImages/ep/web-large/DP273977.jpg"
     }
   ],
   genres: {
-    "portrait": { label: "Portraiture", related: ["genre-painting", "symbolism"] },
+    "portrait": { label: "Portraiture", related: ["genre-painting", "religious"] },
     "landscape": { label: "Landscape", related: ["ukiyo-e", "genre-painting"] },
-    "genre-painting": { label: "Genre Painting", related: ["portrait", "interior"] },
+    "genre-painting": { label: "Genre Painting", related: ["portrait", "interior", "landscape"] },
     "still-life": { label: "Still Life", related: ["landscape", "interior"] },
     "interior": { label: "Interior Scene", related: ["genre-painting", "still-life"] },
-    "group-portrait": { label: "Group Portrait", related: ["portrait", "genre-painting"] },
-    "symbolism": { label: "Symbolism", related: ["portrait", "landscape"] },
+    "religious": { label: "Religious", related: ["portrait", "genre-painting"] },
     "ukiyo-e": { label: "Ukiyo-e", related: ["landscape", "genre-painting"] }
   },
 
   // Starting pairs for the gallery entrance
   startingPairs: [
-    ["vermeer-girl-pearl", "klimt-kiss"],
-    ["vangogh-starry", "hokusai-wave"],
-    ["davinci-mona-lisa", "rembrandt-nightwatch"],
-    ["monet-waterlilies", "renoir-moulin"]
+    ["vermeer-study-young-woman", "hokusai-wave"],
+    ["vangogh-wheat-cypresses", "renoir-two-sisters"],
+    ["rembrandt-aristotle", "monet-water-lilies"],
+    ["hopper-nighthawks", "seurat-grande-jatte"],
+    ["caillebotte-paris-street", "vangogh-self-portrait-hat"],
+    ["degas-dance-class", "cassatt-childs-bath"]
   ]
 };
