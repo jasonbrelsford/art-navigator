@@ -3,71 +3,126 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Ethereal Gallery</title>
-  <link rel="stylesheet" href="css/style.css">
-  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400&family=Raleway:wght@200;300;400;500&display=swap" rel="stylesheet">
+  <title>Universal Graph Explorer</title>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap" rel="stylesheet">
+  <script src="https://d3js.org/d3.v7.min.js"></script>
+  <link rel="stylesheet" href="css/app.css">
 </head>
 <body>
   <div id="app">
-    <!-- Gallery browse view -->
-    <div id="gallery-view" class="view active">
-      <header class="gallery-header">
-        <h1 class="gallery-title">Ethereal Gallery</h1>
-        <nav class="gallery-nav">
-          <a href="graph.html" class="nav-link">Connection Graph</a>
-        </nav>
-      </header>
-      <p id="gallery-subtitle" class="gallery-subtitle">Choose a piece to begin your journey</p>
-      <div id="art-wall" class="art-wall"></div>
-
-      <!-- Connection flow — appears after clicking a piece -->
-      <div id="connection-flow" class="connection-flow hidden">
-        <div class="flow-center">
-          <div class="flow-selected" id="flow-selected"></div>
-        </div>
-        <svg id="flow-lines" class="flow-lines"></svg>
-        <div class="flow-connections" id="flow-connections"></div>
+    <!-- Top bar -->
+    <header id="topbar">
+      <div class="topbar-left">
+        <h1 class="logo">Graph Explorer</h1>
+        <span id="node-count" class="badge">0 nodes</span>
       </div>
+      <div class="topbar-center">
+        <div class="search-wrap">
+          <input type="text" id="search" placeholder="Search Wikipedia for anyone or anything..." autocomplete="off" aria-label="Search">
+          <div id="search-dropdown" class="dropdown hidden"></div>
+        </div>
+      </div>
+      <div class="topbar-right">
+        <button id="btn-sources" class="btn-icon" title="Data Sources">⚙</button>
+        <button id="btn-clear" class="btn-icon" title="Clear Graph">✕</button>
+        <button id="btn-export" class="btn-icon" title="Export JSON">↓</button>
+        <button id="btn-import" class="btn-icon" title="Import JSON">↑</button>
+        <input type="file" id="import-file" accept=".json" style="display:none">
+        <button id="btn-help" class="btn-icon" title="How to Host">?</button>
+      </div>
+    </header>
 
-      <div id="breadcrumb" class="breadcrumb"></div>
+    <!-- Status bar -->
+    <div id="status" class="status hidden"></div>
+
+    <!-- Main graph -->
+    <svg id="graph"></svg>
+
+    <!-- Info panel -->
+    <div id="info-panel" class="panel">
+      <button class="panel-close" id="panel-close">&times;</button>
+      <div id="panel-content"></div>
     </div>
 
-    <!-- Detail view -->
-    <div id="detail-view" class="view">
-      <div class="detail-container">
-        <button id="back-btn" class="back-btn" aria-label="Go back">&larr; Back</button>
-        <div class="detail-content">
-          <div class="detail-image-wrap">
-            <img id="detail-image" src="" alt="" class="detail-image">
+    <!-- Sources modal -->
+    <div id="sources-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Data Sources</h2>
+          <button class="modal-close" id="sources-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <p class="modal-desc">Add custom JSON endpoints or URLs that return entity data. The graph will fetch and merge results from all enabled sources.</p>
+          <div id="sources-list"></div>
+          <div class="source-add">
+            <input type="text" id="source-name" placeholder="Source name" class="source-input">
+            <input type="text" id="source-url" placeholder="https://api.example.com/search?q={query}" class="source-input source-url">
+            <button id="btn-add-source" class="btn-primary">Add Source</button>
           </div>
-          <div class="detail-info">
-            <h2 id="detail-title" class="detail-title"></h2>
-            <p id="detail-artist" class="detail-artist"></p>
-            <p id="detail-year" class="detail-year"></p>
-            <p id="detail-medium" class="detail-medium"></p>
-            <p id="detail-genre" class="detail-genre"></p>
-            <div class="detail-section">
-              <h3>Provenance</h3>
-              <p id="detail-provenance"></p>
+          <div class="source-help">
+            <p>URL must contain <code>{query}</code> as placeholder. Response should be JSON with an array of objects containing at minimum: <code>label</code>, <code>description</code>.</p>
+            <p>Built-in: <strong>Wikidata</strong> (always enabled)</p>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Legend -->
+    <div id="legend"></div>
+
+    <!-- Deploy / Help modal -->
+    <div id="help-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Host Your Own Graph</h2>
+          <button class="modal-close" id="help-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="help-steps">
+            <div class="help-step">
+              <span class="step-num">1</span>
+              <div>
+                <h3>Fork the repository</h3>
+                <p>Go to <a href="https://github.com/jasonbrelsford/art-navigator" target="_blank" id="repo-link">the GitHub repo</a> and click <strong>Fork</strong> in the top right. This copies the entire app to your GitHub account.</p>
+              </div>
             </div>
-            <div class="detail-section">
-              <h3>Current Location</h3>
-              <p id="detail-museum"></p>
-              <p id="detail-museum-location"></p>
-              <p id="detail-address" class="clickable"></p>
+            <div class="help-step">
+              <span class="step-num">2</span>
+              <div>
+                <h3>Enable GitHub Pages</h3>
+                <p>In your forked repo, go to <strong>Settings → Pages</strong>. Under "Build and deployment", select <strong>GitHub Actions</strong> as the source. The included workflow will deploy automatically.</p>
+              </div>
             </div>
-            <div class="detail-section">
-              <h3>About the Artist</h3>
-              <p id="detail-artist-bio"></p>
-              <p id="detail-artist-contact" class="clickable"></p>
+            <div class="help-step">
+              <span class="step-num">3</span>
+              <div>
+                <h3>Visit your site</h3>
+                <p>After a minute or two, your graph will be live at:<br>
+                <code>https://YOUR-USERNAME.github.io/art-navigator/</code></p>
+              </div>
             </div>
+            <div class="help-step">
+              <span class="step-num">4</span>
+              <div>
+                <h3>Start exploring</h3>
+                <p>Search for anything — artists, musicians, politicians, companies, places. Your graph data saves to your browser's localStorage automatically. Use Export/Import to back up or share your graph.</p>
+              </div>
+            </div>
+          </div>
+          <div class="help-note">
+            <h3>How data works</h3>
+            <p>Your graph lives in your browser (localStorage). It's private to you and persists across sessions. The app itself is static HTML/JS — no server, no database, no accounts. You own everything.</p>
+            <p>To share a specific graph with someone, click <strong>↓ Export</strong> to download a JSON file, then they can <strong>↑ Import</strong> it into their own instance.</p>
           </div>
         </div>
       </div>
     </div>
   </div>
 
-  <script src="js/data.js"></script>
-  <script src="js/gallery.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/sources.js"></script>
+  <script src="js/wiki.js"></script>
+  <script src="js/graph-engine.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
