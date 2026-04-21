@@ -38,12 +38,10 @@
     }
 
     searchTimeout = setTimeout(async () => {
-      showStatus('Searching...');
       const [wikiResults, customResults] = await Promise.all([
         Wiki.search(q),
         Sources.search(q)
       ]);
-      hideStatus();
 
       const all = [...wikiResults, ...customResults];
       if (!all.length) { dropdown.classList.add('hidden'); return; }
@@ -105,14 +103,16 @@
       return;
     }
 
-    showStatus(`Loading ${label} from Wikidata...`);
+    showLoader(`Loading ${label} from Wikidata...`);
     removeEmptyState();
 
     const entity = await Wiki.loadEntity(qid);
-    if (!entity) { showStatus('Failed to load entity'); return; }
+    if (!entity) { hideLoader(); showStatus('Failed to load entity'); return; }
 
     const name = entity.labels?.en?.value || label;
     const desc = entity.descriptions?.en?.value || '';
+
+    showLoader(`Extracting connections for ${name}...`);
     const { rels, born, died, wikiUrl } = await Wiki.extractRelationships(entity);
 
     // Determine primary type from relationships
@@ -160,6 +160,7 @@
     }
 
     GraphEngine.rebuild();
+    hideLoader();
     showStatus(`Added ${name} with ${addedCount} connections`);
 
     setTimeout(() => {
@@ -170,10 +171,11 @@
 
   // ── Add from URL (web page scraping) ──
   async function addFromUrl(url) {
-    showStatus(`Fetching ${url}...`);
+    showLoader(`Fetching ${url}...`);
     removeEmptyState();
 
     const result = await WebFetch.fetch(url);
+    hideLoader();
 
     if (!result.nodes.length) {
       showStatus('Could not extract any data from that page');
@@ -383,6 +385,18 @@
     showStatus._t = setTimeout(() => el.classList.add('hidden'), 3500);
   }
   function hideStatus() { document.getElementById('status').classList.add('hidden'); }
+
+  function showLoader(msg) {
+    document.getElementById('loader-text').textContent = msg || 'Loading...';
+    document.getElementById('loader').classList.remove('hidden');
+    // Safety: auto-hide after 15s in case something fails
+    clearTimeout(showLoader._safety);
+    showLoader._safety = setTimeout(() => hideLoader(), 15000);
+  }
+  function hideLoader() {
+    clearTimeout(showLoader._safety);
+    document.getElementById('loader').classList.add('hidden');
+  }
 
   function showEmptyState() {
     if (document.getElementById('empty-state')) return;
