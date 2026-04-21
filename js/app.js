@@ -185,12 +185,17 @@
     let addedCount = 0;
     const mainNodeId = result.nodes[0]?.id;
 
+    // First pass: add all nodes
     result.nodes.forEach(n => {
       if (!GraphEngine.nodeMap[n.id]) {
         GraphEngine.addNode(n.id, n.type, n.label, n.data);
         addedCount++;
       }
-      if (n.linkTo && GraphEngine.nodeMap[n.linkTo]) {
+    });
+
+    // Second pass: add all links (now all nodes exist in nodeMap)
+    result.nodes.forEach(n => {
+      if (n.linkTo) {
         GraphEngine.addLink(n.linkTo, n.id, n.relation || 'related');
       }
     });
