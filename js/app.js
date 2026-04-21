@@ -296,6 +296,15 @@
   }
 
   // ── Helpers ──
+
+  // ── Help Modal ──
+  document.getElementById('btn-help').addEventListener('click', () => {
+    document.getElementById('help-modal').classList.remove('hidden');
+  });
+  document.getElementById('help-close').addEventListener('click', () => {
+    document.getElementById('help-modal').classList.add('hidden');
+  });
+
   function showStatus(msg) {
     const el = document.getElementById('status');
     el.textContent = msg;
@@ -310,7 +319,7 @@
     const div = document.createElement('div');
     div.id = 'empty-state';
     div.className = 'empty-state';
-    div.innerHTML = `<h2>Your graph is empty</h2><p>Search for anyone or anything above — artists, musicians, politicians, places, companies — and watch the connections appear.</p>`;
+    div.innerHTML = `<h2>Your graph is empty</h2><p>Search for anyone or anything above — artists, musicians, politicians, places, companies — and watch the connections appear.</p><p style="margin-top:12px;font-size:0.75rem;color:rgba(107,104,128,0.5);">Click <strong>?</strong> in the top right to learn how to host your own copy.</p>`;
     document.getElementById('app').appendChild(div);
   }
 

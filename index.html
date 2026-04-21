@@ -28,6 +28,7 @@
         <button id="btn-export" class="btn-icon" title="Export JSON">↓</button>
         <button id="btn-import" class="btn-icon" title="Import JSON">↑</button>
         <input type="file" id="import-file" accept=".json" style="display:none">
+        <button id="btn-help" class="btn-icon" title="How to Host">?</button>
       </div>
     </header>
 
@@ -68,6 +69,54 @@
 
     <!-- Legend -->
     <div id="legend"></div>
+
+    <!-- Deploy / Help modal -->
+    <div id="help-modal" class="modal hidden">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h2>Host Your Own Graph</h2>
+          <button class="modal-close" id="help-close">&times;</button>
+        </div>
+        <div class="modal-body">
+          <div class="help-steps">
+            <div class="help-step">
+              <span class="step-num">1</span>
+              <div>
+                <h3>Fork the repository</h3>
+                <p>Go to <a href="https://github.com/jasonbrelsford/art-navigator" target="_blank" id="repo-link">the GitHub repo</a> and click <strong>Fork</strong> in the top right. This copies the entire app to your GitHub account.</p>
+              </div>
+            </div>
+            <div class="help-step">
+              <span class="step-num">2</span>
+              <div>
+                <h3>Enable GitHub Pages</h3>
+                <p>In your forked repo, go to <strong>Settings → Pages</strong>. Under "Build and deployment", select <strong>GitHub Actions</strong> as the source. The included workflow will deploy automatically.</p>
+              </div>
+            </div>
+            <div class="help-step">
+              <span class="step-num">3</span>
+              <div>
+                <h3>Visit your site</h3>
+                <p>After a minute or two, your graph will be live at:<br>
+                <code>https://YOUR-USERNAME.github.io/art-navigator/</code></p>
+              </div>
+            </div>
+            <div class="help-step">
+              <span class="step-num">4</span>
+              <div>
+                <h3>Start exploring</h3>
+                <p>Search for anything — artists, musicians, politicians, companies, places. Your graph data saves to your browser's localStorage automatically. Use Export/Import to back up or share your graph.</p>
+              </div>
+            </div>
+          </div>
+          <div class="help-note">
+            <h3>How data works</h3>
+            <p>Your graph lives in your browser (localStorage). It's private to you and persists across sessions. The app itself is static HTML/JS — no server, no database, no accounts. You own everything.</p>
+            <p>To share a specific graph with someone, click <strong>↓ Export</strong> to download a JSON file, then they can <strong>↑ Import</strong> it into their own instance.</p>
+          </div>
+        </div>
+      </div>
+    </div>
   </div>
 
   <script src="js/store.js"></script>
