@@ -1,18 +1,41 @@
 // Web page fetcher — deep content extraction from any URL via CORS proxy
 const WebFetch = {
-  PROXY: 'https://api.allorigins.win/raw?url=',
+  // Multiple proxy fallbacks — try each until one works
+  PROXIES: [
+    { name: 'allorigins', url: 'https://api.allorigins.win/raw?url=' },
+    { name: 'allorigins-get', url: 'https://api.allorigins.win/get?url=', isJson: true, field: 'contents' },
+    { name: 'corsproxy-org', url: 'https://corsproxy.org/?' },
+  ],
 
   isUrl(str) {
     return /^https?:\/\/.+\..+/.test(str.trim());
+  },
+
+  async _fetchViaProxy(url) {
+    for (const proxy of this.PROXIES) {
+      try {
+        const proxyUrl = proxy.url + encodeURIComponent(url);
+        const resp = await fetch(proxyUrl);
+        if (!resp.ok) continue;
+        if (proxy.isJson) {
+          const json = await resp.json();
+          const html = json[proxy.field];
+          if (html && html.length > 100) return html;
+        } else {
+          const html = await resp.text();
+          if (html && html.length > 100 && !html.includes('error code:')) return html;
+        }
+      } catch (e) { /* try next proxy */ }
+    }
+    return null;
   },
 
   async fetch(url, statusCallback) {
     const sc = statusCallback || (() => {});
     try {
       sc('Fetching page...');
-      const resp = await fetch(this.PROXY + encodeURIComponent(url));
-      if (!resp.ok) throw new Error('Fetch failed: ' + resp.status);
-      const html = await resp.text();
+      const html = await this._fetchViaProxy(url);
+      if (!html) throw new Error('All proxies failed');
       sc('Parsing content...');
       const result = this.parse(html, url);
 
@@ -22,9 +45,8 @@ const WebFetch = {
       for (const sub of subPages.slice(0, 4)) {
         try {
           sc(`Scanning ${sub.label}...`);
-          const subResp = await fetch(this.PROXY + encodeURIComponent(sub.url));
-          if (subResp.ok) {
-            const subHtml = await subResp.text();
+          const subHtml = await this._fetchViaProxy(sub.url);
+          if (subHtml) {
             this._mergeSubPage(subHtml, sub.url, sub.label, result);
           }
         } catch (e) { /* skip failed sub-pages */ }
@@ -36,7 +58,7 @@ const WebFetch = {
 
       return result;
     } catch (e) {
-      return { url, title: url, description: 'Could not fetch page', nodes: [] };
+      return { url, title: url, description: 'Could not fetch page — site may block proxy access', nodes: [] };
     }
   },
 
