@@ -33,13 +33,22 @@ const WebFetch = {
   async fetch(url, statusCallback) {
     const sc = statusCallback || (() => {});
     try {
-      sc('Fetching page...');
+      // Try WordPress REST API first (no proxy needed)
+      sc('Checking for WordPress API...');
+      const wpResult = await this._tryWordPress(url, sc);
+      if (wpResult && wpResult.nodes.length > 2) {
+        sc('Looking up references...');
+        await this._crossRefWikidata(wpResult);
+        return wpResult;
+      }
+
+      // Fall back to proxy-based HTML scraping
+      sc('Fetching page via proxy...');
       const html = await this._fetchViaProxy(url);
       if (!html) throw new Error('All proxies failed');
       sc('Parsing content...');
       const result = this.parse(html, url);
 
-      // Crawl internal sub-pages for more content
       sc('Scanning linked pages...');
       const subPages = this._findSubPages(html, url);
       for (const sub of subPages.slice(0, 4)) {
@@ -49,17 +58,198 @@ const WebFetch = {
           if (subHtml) {
             this._mergeSubPage(subHtml, sub.url, sub.label, result);
           }
-        } catch (e) { /* skip failed sub-pages */ }
+        } catch (e) {}
       }
 
-      // Try to cross-reference extracted names with Wikidata
       sc('Looking up references...');
       await this._crossRefWikidata(result);
-
       return result;
     } catch (e) {
-      return { url, title: url, description: 'Could not fetch page — site may block proxy access', nodes: [] };
+      return { url, title: url, description: 'Could not fetch page — site may block proxy access. If it is WordPress, ensure the REST API is enabled.', nodes: [] };
     }
+  },
+
+  // ── WordPress REST API integration ──
+  async _tryWordPress(url, sc) {
+    const base = new URL(url);
+    const origin = base.origin;
+    const domain = base.hostname.replace('www.', '');
+
+    // Test if /wp-json/wp/v2/ is accessible
+    try {
+      const testResp = await fetch(`${origin}/wp-json/wp/v2/pages?per_page=1`);
+      if (!testResp.ok) return null;
+      await testResp.json(); // validate it's JSON
+    } catch (e) { return null; }
+
+    sc('WordPress detected — loading via API...');
+
+    const nodes = [];
+    const mainId = 'wp-' + domain;
+
+    // Site info
+    try {
+      const siteResp = await fetch(`${origin}/wp-json/`);
+      const siteInfo = await siteResp.json();
+      nodes.push({
+        id: mainId, type: 'organization', label: siteInfo.name || domain,
+        data: { name: siteInfo.name || domain, desc: siteInfo.description || '', url: origin, source: 'wordpress' }
+      });
+    } catch (e) {
+      nodes.push({
+        id: mainId, type: 'organization', label: domain,
+        data: { name: domain, url: origin, source: 'wordpress' }
+      });
+    }
+
+    // Pages
+    sc('Loading pages...');
+    try {
+      const pagesResp = await fetch(`${origin}/wp-json/wp/v2/pages?per_page=20`);
+      const pages = await pagesResp.json();
+      for (const page of pages) {
+        const pageTitle = page.title?.rendered || 'Untitled';
+        const pageId = 'wp-page-' + page.id;
+        const desc = (page.excerpt?.rendered || '').replace(/<[^>]+>/g, '').trim();
+        nodes.push({
+          id: pageId, type: 'category', label: pageTitle,
+          data: { name: pageTitle, desc, url: page.link, source: 'wordpress' },
+          linkTo: mainId, relation: 'page'
+        });
+
+        // Parse page content for text extraction
+        const content = (page.content?.rendered || '').replace(/<[^>]+>/g, ' ').replace(/\s+/g, ' ').trim();
+        if (content.length > 50) {
+          this._extractTextEntities(content, nodes, pageId);
+        }
+      }
+    } catch (e) {}
+
+    // Posts
+    sc('Loading posts...');
+    try {
+      const postsResp = await fetch(`${origin}/wp-json/wp/v2/posts?per_page=20`);
+      const posts = await postsResp.json();
+      for (const post of posts) {
+        const postTitle = post.title?.rendered || 'Untitled';
+        const postId = 'wp-post-' + post.id;
+        const desc = (post.excerpt?.rendered || '').replace(/<[^>]+>/g, '').trim();
+        nodes.push({
+          id: postId, type: 'category', label: postTitle,
+          data: { name: postTitle, desc, url: post.link, source: 'wordpress' },
+          linkTo: mainId, relation: 'post'
+        });
+      }
+    } catch (e) {}
+
+    // Media — this is where the artwork images live
+    sc('Loading media library...');
+    try {
+      const mediaResp = await fetch(`${origin}/wp-json/wp/v2/media?per_page=50`);
+      const media = await mediaResp.json();
+      let artCount = 0;
+      for (const m of media) {
+        if (artCount >= 20) break;
+        const title = m.title?.rendered || '';
+        const alt = m.alt_text || '';
+        const caption = (m.caption?.rendered || '').replace(/<[^>]+>/g, '').trim();
+        const label = alt || caption || title;
+        const imgUrl = m.media_details?.sizes?.medium?.source_url || m.media_details?.sizes?.large?.source_url || m.source_url || '';
+
+        if (!imgUrl) continue;
+
+        // Skip if it looks like a generic upload name with no real title
+        const isGeneric = /^(IMG_|DSC_|image|photo|screenshot)/i.test(title) && !alt && !caption;
+
+        nodes.push({
+          id: 'wp-media-' + m.id,
+          type: 'artwork',
+          label: isGeneric ? `Artwork #${artCount + 1}` : label,
+          data: {
+            name: label || `Artwork #${artCount + 1}`,
+            desc: caption || m.description?.rendered?.replace(/<[^>]+>/g, '').trim() || '',
+            imageUrl: imgUrl,
+            url: m.source_url,
+            source: 'wordpress-media'
+          },
+          linkTo: mainId,
+          relation: 'artwork'
+        });
+        artCount++;
+      }
+    } catch (e) {}
+
+    // Categories
+    sc('Loading categories...');
+    try {
+      const catResp = await fetch(`${origin}/wp-json/wp/v2/categories?per_page=20`);
+      const cats = await catResp.json();
+      for (const cat of cats) {
+        if (cat.name === 'Uncategorized' || cat.count === 0) continue;
+        nodes.push({
+          id: 'wp-cat-' + cat.id, type: 'category', label: cat.name,
+          data: { name: cat.name, desc: cat.description || '', source: 'wordpress' },
+          linkTo: mainId, relation: 'category'
+        });
+      }
+    } catch (e) {}
+
+    // Tags
+    try {
+      const tagResp = await fetch(`${origin}/wp-json/wp/v2/tags?per_page=30`);
+      const tags = await tagResp.json();
+      for (const tag of tags) {
+        if (tag.count === 0) continue;
+        nodes.push({
+          id: 'wp-tag-' + tag.id, type: 'category', label: tag.name,
+          data: { name: tag.name, source: 'wordpress' },
+          linkTo: mainId, relation: 'tag'
+        });
+      }
+    } catch (e) {}
+
+    return { url, title: nodes[0]?.label || domain, description: '', nodes, mainId, domain };
+  },
+
+  // Extract names, locations, art terms from text content
+  _extractTextEntities(text, nodes, linkToId) {
+    const seen = new Set(nodes.map(n => n.label.toLowerCase()));
+
+    // Proper nouns
+    const namePattern = /\b([A-Z][a-z]+(?:\s+[A-Z][a-z]+)+)\b/g;
+    let match;
+    let count = 0;
+    while ((match = namePattern.exec(text)) !== null && count < 5) {
+      const name = match[1].trim();
+      const key = name.toLowerCase();
+      if (name.length > 4 && name.length < 50 && !this._isCommonPhrase(name) && !seen.has(key)) {
+        seen.add(key);
+        nodes.push({
+          id: 'name-' + key.replace(/[^a-z0-9]/g, '-').slice(0, 40),
+          type: 'person', label: name,
+          data: { name, source: 'text-extraction', needsLookup: true },
+          linkTo: linkToId, relation: 'mentioned'
+        });
+        count++;
+      }
+    }
+
+    // Art mediums
+    const artTerms = ['oil on canvas', 'acrylic', 'watercolor', 'mixed media', 'sculpture',
+      'photography', 'digital art', 'printmaking', 'ceramic', 'textile', 'gouache',
+      'charcoal', 'pastel', 'ink', 'collage', 'mural', 'oil painting'];
+    const lowerText = text.toLowerCase();
+    artTerms.forEach(term => {
+      if (lowerText.includes(term) && !seen.has(term)) {
+        seen.add(term);
+        nodes.push({
+          id: 'medium-' + term.replace(/[^a-z0-9]/g, '-'),
+          type: 'category', label: term.charAt(0).toUpperCase() + term.slice(1),
+          data: { name: term, source: 'text-extraction' },
+          linkTo: linkToId, relation: 'medium'
+        });
+      }
+    });
   },
 
   parse(html, url) {
