@@ -174,7 +174,9 @@
     showLoader(`Fetching ${url}...`);
     removeEmptyState();
 
-    const result = await WebFetch.fetch(url);
+    const result = await WebFetch.fetch(url, (msg) => {
+      document.getElementById('loader-text').textContent = msg;
+    });
     hideLoader();
 
     if (!result.nodes.length) {
