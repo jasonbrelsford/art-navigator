@@ -23,6 +23,7 @@
         </div>
       </div>
       <div class="topbar-right">
+        <button id="btn-suggestions" class="btn-icon" title="Suggestions">💡<span id="suggestions-badge" class="suggestions-badge hidden">0</span></button>
         <button id="btn-sources" class="btn-icon" title="Data Sources">⚙</button>
         <button id="btn-clear" class="btn-icon" title="Clear Graph">✕</button>
         <button id="btn-export" class="btn-icon" title="Export JSON">↓</button>
@@ -56,6 +57,13 @@
     <div id="info-panel" class="panel">
       <button class="panel-close" id="panel-close">&times;</button>
       <div id="panel-content"></div>
+    </div>
+
+    <!-- Suggestions panel -->
+    <div id="suggestions-panel" class="panel">
+      <button class="panel-close" id="suggestions-close">&times;</button>
+      <h2 style="font-size:1rem;font-weight:500;color:var(--gold);margin-bottom:12px;">Suggestions</h2>
+      <div id="suggestions-content"></div>
     </div>
 
     <!-- Sources modal -->
@@ -138,6 +146,7 @@
   <script src="js/wiki.js"></script>
   <script src="js/webfetch.js"></script>
   <script src="js/graph-engine.js"></script>
+  <script src="js/discovery.js"></script>
   <script src="js/app.js"></script>
 </body>
 </html>

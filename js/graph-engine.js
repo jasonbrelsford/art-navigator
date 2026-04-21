@@ -22,6 +22,11 @@ const GraphEngine = {
     date: 8, artwork: 16, url: 6, image: 6, unknown: 10,
   },
 
+  GHOST_RADIUS: {
+    person: 14, artwork: 11, organization: 10, location: 8,
+    category: 8, date: 6, url: 5, image: 5, unknown: 7,
+  },
+
   init(svgSelector) {
     this.svg = d3.select(svgSelector);
     this.width = window.innerWidth;
@@ -81,6 +86,34 @@ const GraphEngine = {
     if (!exists) this.links.push({ source: sourceId, target: targetId, relation });
   },
 
+  addGhostNode(id, type, label, data, sourceNodeId) {
+    if (this.nodeMap[id]) return this.nodeMap[id];
+    const radius = this.GHOST_RADIUS[type] || this.GHOST_RADIUS.unknown;
+    const n = { id, type, label, data: data || {}, radius, ghost: true };
+    // Position near source node if available
+    const src = this.nodeMap[sourceNodeId];
+    if (src) {
+      const angle = Math.random() * 2 * Math.PI;
+      const dist = (src.radius || 20) + radius + 30;
+      n.x = (src.x || this.width / 2) + Math.cos(angle) * dist;
+      n.y = (src.y || this.height / 2) + Math.sin(angle) * dist;
+    }
+    this.nodes.push(n);
+    this.nodeMap[id] = n;
+    return n;
+  },
+
+  addGhostLink(sourceId, targetId, relation) {
+    if (sourceId === targetId) return;
+    if (!this.nodeMap[sourceId] || !this.nodeMap[targetId]) return;
+    const exists = this.links.some(l => {
+      const s = typeof l.source === 'object' ? l.source.id : l.source;
+      const t = typeof l.target === 'object' ? l.target.id : l.target;
+      return s === sourceId && t === targetId && l.relation === relation;
+    });
+    if (!exists) this.links.push({ source: sourceId, target: targetId, relation, ghost: true });
+  },
+
   rebuild() {
     this.simulation.nodes(this.nodes);
     this.simulation.force('link').links(this.links);
@@ -93,12 +126,14 @@ const GraphEngine = {
     });
     this.link.exit().remove();
     const linkEnter = this.link.enter().append('line')
-      .attr('class', 'link')
+      .attr('class', d => d.ghost ? 'link ghost-link' : 'link')
       .attr('stroke', d => {
         const src = typeof d.source === 'object' ? d.source : this.nodeMap[d.source];
         return this.COLORS[src?.type] || '#444';
       })
-      .attr('stroke-width', d => d.relation === 'influenced by' || d.relation === 'spouse' ? 2 : 1);
+      .attr('stroke-width', d => d.relation === 'influenced by' || d.relation === 'spouse' ? 2 : 1)
+      .attr('stroke-dasharray', d => d.ghost ? '6,4' : null)
+      .style('stroke-opacity', d => d.ghost ? 0.3 : null);
     this.link = linkEnter.merge(this.link);
 
     // Image patterns for nodes with images
@@ -114,13 +149,15 @@ const GraphEngine = {
     // Nodes
     this.node = this.nodeG.selectAll('.node').data(this.nodes, d => d.id);
     this.node.exit().remove();
-    const nodeEnter = this.node.enter().append('g').attr('class', 'node')
+    const nodeEnter = this.node.enter().append('g').attr('class', d => d.ghost ? 'node ghost-node' : 'node')
       .call(d3.drag().on('start', (e,d) => this._dragStart(e,d)).on('drag', (e,d) => this._drag(e,d)).on('end', (e,d) => this._dragEnd(e,d)));
 
     nodeEnter.append('circle')
       .attr('r', d => d.radius)
       .attr('fill', d => d.data?.imageUrl ? `url(#img-${this._safeId(d.id)})` : (this.COLORS[d.type] || '#666'))
       .attr('stroke', d => this.COLORS[d.type] || '#666')
+      .attr('stroke-dasharray', d => d.ghost ? '4,3' : null)
+      .style('opacity', d => d.ghost ? 0.5 : null)
       .attr('filter', 'url(#glow)');
 
     nodeEnter.append('text')
@@ -133,7 +170,13 @@ const GraphEngine = {
 
     this.simulation.alpha(0.4).restart();
     this._updateCount();
-    Store.save(this.nodes, this.links);
+    // Save confirmed and ghost nodes separately
+    const confirmedNodes = this.nodes.filter(n => !n.ghost);
+    const confirmedLinks = this.links.filter(l => !l.ghost);
+    const ghostNodes = this.nodes.filter(n => n.ghost);
+    const ghostLinks = this.links.filter(l => l.ghost);
+    Store.save(confirmedNodes, confirmedLinks);
+    Store.saveGhosts(ghostNodes, ghostLinks);
   },
 
   clear() {
@@ -153,9 +196,21 @@ const GraphEngine = {
 
   loadFromStore() {
     const { nodes, links } = Store.load();
-    if (!nodes.length) return false;
+    if (!nodes.length) {
+      // Still check for ghost-only data
+      const ghosts = Store.loadGhosts();
+      if (!ghosts.nodes.length) return false;
+      ghosts.nodes.forEach(n => this.addGhostNode(n.id, n.type, n.label, n.data, n.data?.discoveredFrom));
+      ghosts.links.forEach(l => this.addGhostLink(l.source, l.target, l.relation));
+      this.rebuild();
+      return true;
+    }
     nodes.forEach(n => this.addNode(n.id, n.type, n.label, n.data));
     links.forEach(l => this.addLink(l.source, l.target, l.relation));
+    // Load ghost nodes
+    const ghosts = Store.loadGhosts();
+    ghosts.nodes.forEach(n => this.addGhostNode(n.id, n.type, n.label, n.data, n.data?.discoveredFrom));
+    ghosts.links.forEach(l => this.addGhostLink(l.source, l.target, l.relation));
     this.rebuild();
     return true;
   },
@@ -164,8 +219,20 @@ const GraphEngine = {
     try {
       const data = typeof json === 'string' ? JSON.parse(json) : json;
       if (!data.nodes || !data.links) return false;
-      data.nodes.forEach(n => this.addNode(n.id, n.type, n.label, n.data));
-      data.links.forEach(l => this.addLink(l.source, l.target, l.relation));
+      data.nodes.forEach(n => {
+        if (n.ghost) {
+          this.addGhostNode(n.id, n.type, n.label, n.data, n.data?.discoveredFrom);
+        } else {
+          this.addNode(n.id, n.type, n.label, n.data);
+        }
+      });
+      data.links.forEach(l => {
+        if (l.ghost) {
+          this.addGhostLink(l.source, l.target, l.relation);
+        } else {
+          this.addLink(l.source, l.target, l.relation);
+        }
+      });
       this.rebuild();
       return true;
     } catch(e) { return false; }
@@ -176,6 +243,50 @@ const GraphEngine = {
       this.zoom.transform,
       d3.zoomIdentity.translate(this.width/2, this.height/2).scale(1.8).translate(-d.x, -d.y)
     );
+  },
+
+  confirmGhost(nodeId) {
+    const node = this.nodeMap[nodeId];
+    if (!node || !node.ghost) return;
+    node.ghost = false;
+    node.radius = this.RADIUS[node.type] || this.RADIUS.unknown;
+    // Update associated links
+    this.links.forEach(l => {
+      const s = typeof l.source === 'object' ? l.source.id : l.source;
+      const t = typeof l.target === 'object' ? l.target.id : l.target;
+      if (s === nodeId || t === nodeId) l.ghost = false;
+    });
+    this.rebuild();
+  },
+
+  removeGhost(nodeId) {
+    const node = this.nodeMap[nodeId];
+    if (!node) return;
+    // Remove from nodes array
+    const idx = this.nodes.indexOf(node);
+    if (idx !== -1) this.nodes.splice(idx, 1);
+    delete this.nodeMap[nodeId];
+    // Remove all links referencing this node
+    this.links = this.links.filter(l => {
+      const s = typeof l.source === 'object' ? l.source.id : l.source;
+      const t = typeof l.target === 'object' ? l.target.id : l.target;
+      return s !== nodeId && t !== nodeId;
+    });
+    this.rebuild();
+  },
+
+  getGhostNodes() {
+    return this.nodes.filter(n => n.ghost === true);
+  },
+
+  getGhostsBySource() {
+    const map = new Map();
+    this.nodes.filter(n => n.ghost === true).forEach(n => {
+      const src = n.data?.discoveredFrom || 'unknown';
+      if (!map.has(src)) map.set(src, []);
+      map.get(src).push(n);
+    });
+    return map;
   },
 
   _safeId(id) { return id.replace(/[^a-zA-Z0-9-]/g, '_'); },
@@ -192,9 +303,11 @@ const GraphEngine = {
   _attachEvents(sel) {
     const self = this;
     sel.on('mouseover', function(e, d) {
+      if (d.ghost) d3.select(this).select('circle').style('opacity', 0.8);
       if (!self.pinnedNode) self._highlightConnected(d);
     })
-    .on('mouseout', function() {
+    .on('mouseout', function(e, d) {
+      if (d.ghost) d3.select(this).select('circle').style('opacity', 0.5);
       if (!self.pinnedNode) self._resetOpacity();
     })
     .on('click', function(e, d) {

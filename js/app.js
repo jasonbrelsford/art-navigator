@@ -167,6 +167,11 @@
       const n = GraphEngine.nodeMap[nodeId];
       if (n) GraphEngine.zoomTo(n);
     }, 400);
+
+    // Trigger discovery for the newly added node (7.1)
+    const addedNode = GraphEngine.nodeMap[nodeId];
+    if (addedNode) Discovery.discover(addedNode);
+    updateSuggestionsBadge();
   }
 
   // ── Add from URL (web page scraping) ──
@@ -208,6 +213,11 @@
     if (mainNodeId && GraphEngine.nodeMap[mainNodeId]) {
       setTimeout(() => GraphEngine.zoomTo(GraphEngine.nodeMap[mainNodeId]), 400);
     }
+
+    // Trigger discovery for the main node from URL fetch (7.1)
+    const mainNode = mainNodeId && GraphEngine.nodeMap[mainNodeId];
+    if (mainNode) Discovery.discover(mainNode);
+    updateSuggestionsBadge();
   }
 
   // ── Add from custom source ──
@@ -236,9 +246,22 @@
     html += `<h2>${d.label}</h2>`;
 
     if (d.data?.desc) html += `<div class="p-section"><p>${d.data.desc}</p></div>`;
-    if (d.data?.born) html += `<div class="p-section"><h3>Born</h3><p>${d.data.born}</p></div>`;
-    if (d.data?.died) html += `<div class="p-section"><h3>Died</h3><p>${d.data.died}</p></div>`;
-    if (d.data?.wikiUrl) html += `<div class="p-section"><a href="${d.data.wikiUrl}" target="_blank">Wikipedia →</a></div>`;
+
+    // Ghost node preview (7.2)
+    if (d.ghost) {
+      const sourceNode = d.data?.discoveredFrom ? GraphEngine.nodeMap[d.data.discoveredFrom] : null;
+      const sourceLabel = sourceNode ? sourceNode.label : (d.data?.discoveredFrom || 'unknown');
+      if (d.data?.discoveryRelation) html += `<div class="p-section"><h3>Suggested via</h3><p>${d.data.discoveryRelation}</p></div>`;
+      html += `<div class="p-section"><h3>Discovered from</h3><p>${sourceLabel}</p></div>`;
+      html += `<div class="p-section" style="margin-top:16px;display:flex;gap:8px;">`;
+      html += `<button class="btn-primary" id="btn-ghost-approve">Approve</button>`;
+      html += `<button class="btn-primary" id="btn-ghost-dismiss" style="background:var(--danger);">Dismiss</button>`;
+      html += `</div>`;
+    } else {
+      if (d.data?.born) html += `<div class="p-section"><h3>Born</h3><p>${d.data.born}</p></div>`;
+      if (d.data?.died) html += `<div class="p-section"><h3>Died</h3><p>${d.data.died}</p></div>`;
+      if (d.data?.wikiUrl) html += `<div class="p-section"><a href="${d.data.wikiUrl}" target="_blank">Wikipedia →</a></div>`;
+    }
 
     // Connections
     const conns = [];
@@ -261,8 +284,8 @@
       html += '</div>';
     }
 
-    // Expand button if this node has a Wikidata QID and hasn't been fully loaded
-    if (d.data?.qid && !d.data?.expanded) {
+    // Expand button if this node has a Wikidata QID and hasn't been fully loaded (only for confirmed nodes)
+    if (!d.ghost && d.data?.qid && !d.data?.expanded) {
       html += `<div class="p-section" style="margin-top:16px;"><button class="btn-primary" id="btn-expand">Expand connections from Wikidata</button></div>`;
     }
 
@@ -288,6 +311,36 @@
         openPanel(d);
       });
     }
+
+    // Ghost approve/dismiss buttons (7.2)
+    const approveBtn = document.getElementById('btn-ghost-approve');
+    if (approveBtn) {
+      approveBtn.addEventListener('click', () => {
+        GraphEngine.confirmGhost(d.id);
+        panel.classList.remove('open');
+        GraphEngine.pinnedNode = null;
+        GraphEngine._resetOpacity();
+        Discovery.discover(GraphEngine.nodeMap[d.id]);
+        updateSuggestionsBadge();
+        renderSuggestionsPanel();
+        showStatus(`Approved: ${d.label}`);
+      });
+    }
+    const dismissBtn = document.getElementById('btn-ghost-dismiss');
+    if (dismissBtn) {
+      dismissBtn.addEventListener('click', () => {
+        const dismissed = Store.loadDismissed();
+        dismissed.add(d.data?.qid || d.id);
+        Store.saveDismissed(dismissed);
+        GraphEngine.removeGhost(d.id);
+        panel.classList.remove('open');
+        GraphEngine.pinnedNode = null;
+        GraphEngine._resetOpacity();
+        updateSuggestionsBadge();
+        renderSuggestionsPanel();
+        showStatus(`Dismissed: ${d.label}`);
+      });
+    }
   }
 
   document.getElementById('panel-close').addEventListener('click', () => {
@@ -296,16 +349,119 @@
     GraphEngine._resetOpacity();
   });
 
+  // ── Suggestions Panel (7.3) ──
+  document.getElementById('btn-suggestions').addEventListener('click', () => {
+    const panel = document.getElementById('suggestions-panel');
+    panel.classList.toggle('open');
+    if (panel.classList.contains('open')) renderSuggestionsPanel();
+  });
+
+  document.getElementById('suggestions-close').addEventListener('click', () => {
+    document.getElementById('suggestions-panel').classList.remove('open');
+  });
+
+  function renderSuggestionsPanel() {
+    const container = document.getElementById('suggestions-content');
+    const grouped = GraphEngine.getGhostsBySource();
+
+    if (grouped.size === 0) {
+      container.innerHTML = '<div class="suggestion-empty">No pending suggestions. Add nodes to discover connections.</div>';
+      return;
+    }
+
+    let html = '';
+    grouped.forEach((ghosts, sourceId) => {
+      const sourceNode = GraphEngine.nodeMap[sourceId];
+      const sourceLabel = sourceNode ? sourceNode.label : sourceId;
+      html += `<div class="suggestion-group">`;
+      html += `<div class="suggestion-group-header">From: ${sourceLabel}</div>`;
+      ghosts.forEach(g => {
+        html += `<div class="suggestion-item" data-id="${g.id}">`;
+        html += `<span class="si-label">${g.label}</span>`;
+        html += `<span class="si-rel">${g.data?.discoveryRelation || ''}</span>`;
+        html += `<span class="si-actions">`;
+        html += `<button class="si-approve" data-id="${g.id}" data-qid="${g.data?.qid || ''}" data-label="${g.label}">✓</button>`;
+        html += `<button class="si-dismiss" data-id="${g.id}" data-qid="${g.data?.qid || ''}" data-label="${g.label}">✕</button>`;
+        html += `</span></div>`;
+      });
+      html += `</div>`;
+    });
+    container.innerHTML = html;
+
+    // Wire click-to-zoom on entries
+    container.querySelectorAll('.suggestion-item').forEach(el => {
+      el.addEventListener('click', (e) => {
+        if (e.target.closest('.si-actions')) return;
+        const n = GraphEngine.nodeMap[el.dataset.id];
+        if (n) { GraphEngine.zoomTo(n); GraphEngine.pinnedNode = n; GraphEngine._highlightConnected(n); openPanel(n); }
+      });
+    });
+
+    // Wire approve buttons
+    container.querySelectorAll('.si-approve').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const label = btn.dataset.label;
+        GraphEngine.confirmGhost(id);
+        const node = GraphEngine.nodeMap[id];
+        if (node) Discovery.discover(node);
+        updateSuggestionsBadge();
+        renderSuggestionsPanel();
+        showStatus(`Approved: ${label}`);
+      });
+    });
+
+    // Wire dismiss buttons
+    container.querySelectorAll('.si-dismiss').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const qid = btn.dataset.qid;
+        const label = btn.dataset.label;
+        const dismissed = Store.loadDismissed();
+        dismissed.add(qid || id);
+        Store.saveDismissed(dismissed);
+        GraphEngine.removeGhost(id);
+        updateSuggestionsBadge();
+        renderSuggestionsPanel();
+        showStatus(`Dismissed: ${label}`);
+      });
+    });
+  }
+
+  // ── Suggestions Badge (7.4) ──
+  function updateSuggestionsBadge() {
+    const badge = document.getElementById('suggestions-badge');
+    const count = GraphEngine.getGhostNodes().length;
+    badge.textContent = count;
+    if (count > 0) {
+      badge.classList.remove('hidden');
+    } else {
+      badge.classList.add('hidden');
+    }
+  }
+
+  // Initial badge update on load
+  updateSuggestionsBadge();
+
   // ── Controls ──
   document.getElementById('btn-clear').addEventListener('click', () => {
     if (confirm('Clear the entire graph? This cannot be undone.')) {
       GraphEngine.clear();
       showEmptyState();
+      updateSuggestionsBadge();
+      // Close suggestions panel if open
+      document.getElementById('suggestions-panel').classList.remove('open');
     }
   });
 
   document.getElementById('btn-export').addEventListener('click', () => {
-    Store.exportJSON(GraphEngine.nodes, GraphEngine.links);
+    const confirmedNodes = GraphEngine.nodes.filter(n => !n.ghost);
+    const confirmedLinks = GraphEngine.links.filter(l => !l.ghost);
+    const ghostNodes = GraphEngine.nodes.filter(n => n.ghost);
+    const ghostLinks = GraphEngine.links.filter(l => l.ghost);
+    Store.exportJSON(confirmedNodes, confirmedLinks, ghostNodes, ghostLinks);
   });
 
   document.getElementById('btn-import').addEventListener('click', () => {
@@ -320,6 +476,7 @@
       removeEmptyState();
       if (GraphEngine.importJSON(ev.target.result)) {
         showStatus('Graph imported successfully');
+        updateSuggestionsBadge();
       } else {
         showStatus('Failed to import — invalid format');
       }

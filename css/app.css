@@ -224,3 +224,91 @@ html, body { height:100%; overflow:hidden; font-family:'Inter',sans-serif; backg
   color: var(--accent2);
   letter-spacing: 0.04em;
 }
+
+/* ── Suggestions Badge ── */
+.suggestions-badge {
+  position: absolute;
+  top: -4px;
+  right: -4px;
+  background: var(--accent);
+  color: #fff;
+  font-size: 0.55rem;
+  font-weight: 600;
+  min-width: 16px;
+  height: 16px;
+  line-height: 16px;
+  text-align: center;
+  border-radius: 8px;
+  padding: 0 4px;
+  pointer-events: none;
+}
+.suggestions-badge.hidden { display: none; }
+
+#btn-suggestions { position: relative; }
+
+/* ── Suggestions Panel ── */
+#suggestions-panel .suggestion-group { margin-bottom: 16px; }
+#suggestions-panel .suggestion-group-header {
+  font-size: 0.7rem;
+  color: var(--accent);
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1px solid var(--border);
+}
+#suggestions-panel .suggestion-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 0;
+  border-bottom: 1px solid var(--border);
+  cursor: pointer;
+  font-size: 0.8rem;
+  color: var(--dim);
+  transition: color 0.2s;
+}
+#suggestions-panel .suggestion-item:hover { color: var(--gold); }
+#suggestions-panel .suggestion-item .si-label { flex: 1; }
+#suggestions-panel .suggestion-item .si-rel {
+  font-size: 0.65rem;
+  color: rgba(124,111,202,0.5);
+  margin-right: 4px;
+}
+#suggestions-panel .suggestion-item .si-actions { display: flex; gap: 4px; flex-shrink: 0; }
+#suggestions-panel .suggestion-item .si-actions button {
+  background: none;
+  border: 1px solid var(--border);
+  color: var(--dim);
+  font-size: 0.65rem;
+  padding: 2px 8px;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+}
+#suggestions-panel .suggestion-item .si-actions button:hover {
+  border-color: var(--accent);
+  color: var(--accent);
+}
+#suggestions-panel .suggestion-item .si-actions button.si-dismiss:hover {
+  border-color: var(--danger);
+  color: var(--danger);
+}
+.suggestion-empty {
+  font-size: 0.8rem;
+  color: var(--dim);
+  text-align: center;
+  padding: 24px 0;
+}
+
+/* ── Discovery Loading Indicator ── */
+.discovery-loading {
+  animation: discoveryPulse 1.2s linear infinite;
+}
+@keyframes discoveryPulse {
+  0% { stroke-dashoffset: 0; }
+  100% { stroke-dashoffset: 24; }
+}
+
+/* ── Ghost Node Hover (D3 inline handles base, CSS adds hover transition) ── */
+.ghost-node circle { transition: opacity 0.2s; }
