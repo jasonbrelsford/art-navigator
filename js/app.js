@@ -20,6 +20,23 @@
     const q = searchInput.value.trim();
     if (q.length < 2) { dropdown.classList.add('hidden'); return; }
 
+    // Detect URL — skip Wikidata search, offer to fetch the page directly
+    if (WebFetch.isUrl(q)) {
+      dropdown.innerHTML = '';
+      dropdown.innerHTML += '<div class="dropdown-header">Web Page</div>';
+      const div = document.createElement('div');
+      div.className = 'dropdown-item';
+      div.innerHTML = `<div class="di-label">Fetch: ${q}</div><div class="di-desc">Extract metadata, social links, and structured data from this page</div><div class="di-source">Web</div>`;
+      div.addEventListener('click', () => {
+        dropdown.classList.add('hidden');
+        searchInput.value = '';
+        addFromUrl(q);
+      });
+      dropdown.appendChild(div);
+      dropdown.classList.remove('hidden');
+      return;
+    }
+
     searchTimeout = setTimeout(async () => {
       showStatus('Searching...');
       const [wikiResults, customResults] = await Promise.all([
@@ -42,6 +59,18 @@
       }
       dropdown.classList.remove('hidden');
     }, 400);
+  });
+
+  // Also handle Enter key to fetch URL immediately
+  searchInput.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') {
+      const q = searchInput.value.trim();
+      if (WebFetch.isUrl(q)) {
+        dropdown.classList.add('hidden');
+        searchInput.value = '';
+        addFromUrl(q);
+      }
+    }
   });
 
   function makeDropdownItem(r) {
@@ -137,6 +166,39 @@
       const n = GraphEngine.nodeMap[nodeId];
       if (n) GraphEngine.zoomTo(n);
     }, 400);
+  }
+
+  // ── Add from URL (web page scraping) ──
+  async function addFromUrl(url) {
+    showStatus(`Fetching ${url}...`);
+    removeEmptyState();
+
+    const result = await WebFetch.fetch(url);
+
+    if (!result.nodes.length) {
+      showStatus('Could not extract any data from that page');
+      return;
+    }
+
+    let addedCount = 0;
+    const mainNodeId = result.nodes[0]?.id;
+
+    result.nodes.forEach(n => {
+      if (!GraphEngine.nodeMap[n.id]) {
+        GraphEngine.addNode(n.id, n.type, n.label, n.data);
+        addedCount++;
+      }
+      if (n.linkTo && GraphEngine.nodeMap[n.linkTo]) {
+        GraphEngine.addLink(n.linkTo, n.id, n.relation || 'related');
+      }
+    });
+
+    GraphEngine.rebuild();
+    showStatus(`Added ${addedCount} nodes from ${url}`);
+
+    if (mainNodeId && GraphEngine.nodeMap[mainNodeId]) {
+      setTimeout(() => GraphEngine.zoomTo(GraphEngine.nodeMap[mainNodeId]), 400);
+    }
   }
 
   // ── Add from custom source ──
