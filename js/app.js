@@ -332,13 +332,21 @@
   document.getElementById('btn-add-source').addEventListener('click', () => {
     const name = document.getElementById('source-name').value.trim();
     const url = document.getElementById('source-url').value.trim();
+    if (!name || !url) {
+      showStatus('Enter both a name and URL');
+      return;
+    }
+    if (WebFetch.isUrl(url) && !url.includes('{query}')) {
+      showStatus('To fetch a single page, paste the URL in the search bar at the top instead. This panel is for API endpoints with {query} placeholders.');
+      return;
+    }
     if (Sources.add(name, url)) {
       document.getElementById('source-name').value = '';
       document.getElementById('source-url').value = '';
       renderSourcesList();
       showStatus(`Added source: ${name}`);
     } else {
-      showStatus('Invalid source — URL must contain {query}');
+      showStatus('URL must contain {query} as a placeholder — e.g. https://api.example.com/search?q={query}');
     }
   });
 
